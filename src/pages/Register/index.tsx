@@ -9,10 +9,36 @@ import { Logo } from "@/components/Logo";
 import grid from "@/images/grid-01.svg";
 import { Link } from "react-router-dom";
 import { Footer } from "@/components/Footer";
-import { useState } from "react";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+// Define the validation schema
+const schema = yup
+  .object({
+    name: yup.string().required("Nome é obrigatório"),
+    email: yup
+      .string()
+      .email("E-mail inválido")
+      .required("E-mail é obrigatório"),
+    password: yup
+      .string()
+      .required("Senha é obrigatória")
+      .min(6, "A senha deve ter no mínimo 6 caracteres"),
+    passwordConfirmation: yup
+      .string()
+      .oneOf([yup.ref("password"), null], "As senhas não coincidem")
+      .required("Confirmação de senha é obrigatória"),
+  })
+  .required();
 
 export const Register = () => {
-  const { register, handleSubmit } = useForm<CreateUser>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
   const mutation = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
@@ -28,9 +54,6 @@ export const Register = () => {
   });
 
   const onSubmit = (data: CreateUser) => {
-    if (data.password !== data.passwordConfirmation) {
-      return toast.error("Passwords do not match");
-    }
     mutation.mutate(data);
   };
 
@@ -51,16 +74,27 @@ export const Register = () => {
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-6">
                   <div>
-                    <Input label="Nome" type="text" {...register("name")} />
+                    <Input
+                      label="Nome"
+                      type="text"
+                      {...register("name")}
+                      error={errors.name?.message}
+                    />
                   </div>
                   <div>
-                    <Input label="E-mail" type="email" {...register("email")} />
+                    <Input
+                      label="E-mail"
+                      type="email"
+                      {...register("email")}
+                      error={errors.email?.message}
+                    />
                   </div>
                   <div>
                     <Input
                       label="Senha"
                       type="password"
                       {...register("password")}
+                      error={errors.password?.message}
                     />
                   </div>
                   <div>
@@ -68,6 +102,7 @@ export const Register = () => {
                       label="Confirme a senha"
                       type="password"
                       {...register("passwordConfirmation")}
+                      error={errors.passwordConfirmation?.message}
                     />
                   </div>
 
