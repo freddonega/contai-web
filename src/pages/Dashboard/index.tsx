@@ -59,7 +59,11 @@ export const Dashboard = () => {
               </div>
               <div className="relative p-10">
                 {isLoading ? (
-                  <Skeleton height={300} />
+                  <Skeleton
+                    height={300}
+                    baseColor="#333A48"
+                    highlightColor="#24303F"
+                  />
                 ) : (
                   <PerformanceChart data={formattedData} />
                 )}
@@ -88,7 +92,11 @@ export const Dashboard = () => {
               </div>
               <div className="relative p-10">
                 {montlyIsLoading ? (
-                  <Skeleton height={300} />
+                  <Skeleton
+                    height={300}
+                    baseColor="#333A48"
+                    highlightColor="#24303F"
+                  />
                 ) : (
                   <MonthlyCategoryChart data={monthlyTotals?.totals} />
                 )}
