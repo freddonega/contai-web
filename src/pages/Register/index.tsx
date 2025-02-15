@@ -1,25 +1,23 @@
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { loginUser } from "@/requests/userRequests";
-import { LoginData } from "@/types/user";
+import { createUser } from "@/requests/userRequests";
+import { CreateUser } from "@/types/user";
 import { Input } from "@/components/Input";
-import { useAuthStore } from "@/storage/authStorage";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import { Logo } from "@/components/Logo";
 import grid from "@/images/grid-01.svg";
 import { Link } from "react-router-dom";
 import { Footer } from "@/components/Footer";
+import { useState } from "react";
 
-export const Login = () => {
-  const { register, handleSubmit } = useForm<LoginData>();
-  const setAuth = useAuthStore((state) => state.setAuth);
+export const Register = () => {
+  const { register, handleSubmit } = useForm<CreateUser>();
   const mutation = useMutation({
-    mutationFn: loginUser,
-    onSuccess: (data) => {
-      setAuth(data.token, data.user);
-      toast.success("Login bem-sucedido");
-      // Redirect to home page or dashboard
+    mutationFn: createUser,
+    onSuccess: () => {
+      toast.success("Cadastro bem-sucedido");
+      // Redirect to login page or dashboard
     },
     onError: (error: unknown) => {
       if (error instanceof AxiosError) {
@@ -29,7 +27,10 @@ export const Login = () => {
     },
   });
 
-  const onSubmit = (data: LoginData) => {
+  const onSubmit = (data: CreateUser) => {
+    if (data.password !== data.passwordConfirmation) {
+      return toast.error("Passwords do not match");
+    }
     mutation.mutate(data);
   };
 
@@ -40,23 +41,33 @@ export const Login = () => {
           <div>
             <div className="mb-5 sm:mb-8">
               <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                Login
+                Cadastro
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Entre com suas credenciais
+                Crie sua conta
               </p>
             </div>
             <div>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-6">
                   <div>
-                    <Input label="Email" type="email" {...register("email")} />
+                    <Input label="Nome" type="text" {...register("name")} />
+                  </div>
+                  <div>
+                    <Input label="E-mail" type="email" {...register("email")} />
                   </div>
                   <div>
                     <Input
-                      label="Password"
+                      label="Senha"
                       type="password"
                       {...register("password")}
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      label="Confirme a senha"
+                      type="password"
+                      {...register("passwordConfirmation")}
                     />
                   </div>
 
@@ -65,15 +76,15 @@ export const Login = () => {
                       className="inline-flex items-center justify-center gap-2 rounded-lg transition w-full px-4 py-3 text-sm bg-contai-lightBlue text-white shadow-theme-xs hover: disabled:bg-gray-500/50 disabled:cursor-not-allowed"
                       disabled={mutation.isPending}
                     >
-                      {mutation.isPending ? "Carregando..." : "Entrar"}
+                      {mutation.isPending ? "Carregando..." : "Cadastrar"}
                     </button>
                   </div>
                   <div className="text-center">
                     <Link
-                      to="/register"
+                      to="/login"
                       className="text-sm text-contai-lightBlue hover:underline"
                     >
-                      Não tem uma conta? Cadastre-se
+                      Já tem uma conta? Faça login
                     </Link>
                   </div>
                 </div>
@@ -81,7 +92,6 @@ export const Login = () => {
             </div>
           </div>
         </div>
-
         <Footer />
       </div>
       <div className="relative items-center justify-center flex-1 hidden p-8 z-1 bg-brand-950 dark:bg-contai-darkBlue lg:flex">

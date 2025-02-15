@@ -5,8 +5,10 @@ export interface User {
 }
 
 export interface CreateUser {
+  name: string;
   email: string;
   password: string;
+  passwordConfirmation: string;
 }
 
 export interface LoginData {

@@ -7,7 +7,9 @@ import {
   FaBars,
   FaCommentsDollar,
   FaLayerGroup,
+  FaRegChartBar,
 } from "react-icons/fa";
+import { Footer } from "../Footer";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -86,7 +88,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       </div>
       {/* <!-- SIDEBAR HEADER --> */}
 
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
+      <div className="flex-1 no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
         {/* <!-- Sidebar Menu --> */}
         <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
           {/* <!-- Menu Group --> */}
@@ -100,7 +102,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 to="/"
                 className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out`}
               >
-                <FaLayerGroup className="fill-current" size={18} />
+                <FaRegChartBar className="fill-current" size={18} />
                 Dashboard
               </NavLink>
               <SidebarLinkGroup
@@ -235,6 +237,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         </nav>
         {/* <!-- Sidebar Menu --> */}
       </div>
+
+      <Footer />
     </aside>
   );
 };

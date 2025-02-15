@@ -1,6 +1,7 @@
 import React from "react";
 import { Dashboard } from "@/pages/Dashboard";
 import { Login } from "@/pages/Login";
+import { Register } from "@/pages/Register";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "@/storage/authStorage";
 import { DefaultLayout as Layout } from "@/layout/DefaultLayout";
@@ -25,6 +26,10 @@ export const AppRoutes = () => {
       <Route
         path="/login"
         element={token ? <Navigate to="/" replace /> : <Login />}
+      />
+      <Route
+        path="/register"
+        element={token ? <Navigate to="/" replace /> : <Register />}
       />
       <Route
         path="/"

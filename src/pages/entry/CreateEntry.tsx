@@ -14,7 +14,10 @@ import { CurrencyInput } from "react-currency-mask";
 
 // Define the validation schema
 const schema = yup.object().shape({
-  amount: yup.number().required("Valor é obrigatório"),
+  amount: yup
+    .number()
+    .required("O valor da movimentação é obrigatório")
+    .min(0, "O valor deve ser maior que 0"),
   description: yup.string(),
   category_id: yup.number().required("Categoria é obrigatória"),
   period: yup.string().required("Período é obrigatório"),
@@ -65,6 +68,12 @@ export const CreateEntry = () => {
 
   useEffect(() => {
     if (categories) {
+      if (categories.categories.length === 0) {
+        toast.error(
+          "Você precisa criar uma categoria antes de criar uma movimentação"
+        );
+        navigate("/categories");
+      }
       setCategoryOptions(
         categories.categories.map((category) => ({
           value: category.id,
@@ -149,11 +158,7 @@ export const CreateEntry = () => {
                 />
               )}
             />
-            {errors.amount && (
-              <p className="text-red-500 text-xs italic">
-                {errors.amount.message}
-              </p>
-            )}
+
             <Input
               label="Descrição"
               type="text"
@@ -170,6 +175,7 @@ export const CreateEntry = () => {
                 setValue("category_id", Number(value));
               }}
               value={watchCategory?.toString()}
+              error={errors.category_id?.message}
             />
             <Input
               label="Período"
@@ -178,14 +184,18 @@ export const CreateEntry = () => {
               {...register("period")}
               error={errors.period?.message}
             />
-          </div>
-          <div className="flex justify-end p-4 space-x-4">
-            <button
-              type="submit"
-              className="inline-flex items-center justify-center gap-2 rounded-lg transition  px-4 py-3 text-sm bg-primary text-white shadow-theme-xs hover:bg-primary disabled:bg-primary/50 disabled:cursor-not-allowed"
-            >
-              {id ? "Atualizar" : "Salvar"}
-            </button>
+            <div>
+              <button
+                className="inline-flex items-center justify-center gap-2 rounded-lg transition w-full px-4 py-3 text-sm bg-contai-lightBlue text-white shadow-theme-xs hover: disabled:bg-gray-500/50 disabled:cursor-not-allowed"
+                disabled={createMutation.isPending || updateMutation.isPending}
+              >
+                {createMutation.isPending || updateMutation.isPending
+                  ? "Carregando..."
+                  : id
+                  ? "Atualizar"
+                  : "Salvar"}
+              </button>
+            </div>
           </div>
         </div>
       </div>

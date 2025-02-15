@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // Define the validation schema
 const schema = yup.object().shape({
@@ -23,6 +23,7 @@ const schema = yup.object().shape({
 export const CreateCategory = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -52,10 +53,12 @@ export const CreateCategory = () => {
   const createMutation = useMutation({
     mutationFn: createCategory,
     onSuccess: () => {
+      setIsLoading(false);
       toast.success("Categoria criada com sucesso");
       navigate("/categories");
     },
     onError: (error: any) => {
+      setIsLoading(false);
       toast.error(
         `Erro ao criar categoria: ${
           error.response?.data?.message || error.message
@@ -67,10 +70,12 @@ export const CreateCategory = () => {
   const updateMutation = useMutation({
     mutationFn: updateCategory,
     onSuccess: () => {
+      setIsLoading(false);
       toast.success("Categoria atualizada com sucesso");
       navigate("/categories");
     },
     onError: (error: any) => {
+      setIsLoading(false);
       toast.error(
         `Erro ao atualizar categoria: ${
           error.response?.data?.message || error.message
@@ -80,6 +85,7 @@ export const CreateCategory = () => {
   });
 
   const onSubmit = (data: Omit<Category, "id">) => {
+    setIsLoading(true);
     if (id) {
       updateMutation.mutate({ id, ...data });
     } else {
@@ -120,8 +126,9 @@ export const CreateCategory = () => {
             <button
               type="submit"
               className="inline-flex items-center justify-center gap-2 rounded-lg transition  px-4 py-3 text-sm bg-primary text-white shadow-theme-xs hover:bg-primary disabled:bg-primary/50 disabled:cursor-not-allowed"
+              disabled={isLoading}
             >
-              {id ? "Atualizar" : "Salvar"}
+              {isLoading ? "Carregando..." : id ? "Atualizar" : "Salvar"}
             </button>
           </div>
         </div>
