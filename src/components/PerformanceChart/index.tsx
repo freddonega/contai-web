@@ -36,7 +36,7 @@ export const PerformanceChart = ({ data }: PerformanceChartProps) => {
               </div>
               <div class="flex flex-col gap-1">
           <div>R$ ${income.toLocaleString("pt-BR")}</div>
-          <div>R$ ${expense.toLocaleString("pt-BR")}</div>
+          <div>- R$ ${expense.toLocaleString("pt-BR")}</div>
               </div>
             </div>
           </div>
@@ -150,11 +150,11 @@ export const PerformanceChart = ({ data }: PerformanceChartProps) => {
             ).toFixed(0);
 
             if (Number(percentage) < 70) {
-              return `{percentage_green|${percentage}%}\n{value|R$ ${params.value.toLocaleString(
+              return `{percentage_green|${percentage}%}\n{value|- R$ ${params.value.toLocaleString(
                 "pt-BR"
               )}}`;
             } else {
-              return `{percentage_red|${percentage}%}\n{value|R$ ${params.value.toLocaleString(
+              return `{percentage_red|${percentage}%}\n{value|- R$ ${params.value.toLocaleString(
                 "pt-BR"
               )}}`;
             }

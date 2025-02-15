@@ -21,7 +21,7 @@ import { AxiosError } from "axios";
 export const ListEntries = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState<string | undefined>("period");
+  const [sortBy, setSortBy] = useState<string | undefined>("category.type");
   const [sortDirection, setSortDirection] = useState<
     "asc" | "desc" | undefined
   >("desc");
@@ -103,24 +103,10 @@ export const ListEntries = () => {
   };
 
   const columns = [
-    { header: "Descrição", accessor: "description", width: "250px" },
-    {
-      header: "Valor",
-      sortable: true,
-      accessor: "amount",
-      width: "150px",
-      Cell: ({ row }: { row: any }) => (
-        <span>
-          {new Intl.NumberFormat("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          }).format(row.amount)}
-        </span>
-      ),
-    },
     {
       header: "Período",
       accessor: "period",
+      width: "200px",
       sortable: true,
       Cell: ({ row }: { row: any }) => (
         <span>
@@ -132,15 +118,30 @@ export const ListEntries = () => {
       ),
     },
     {
-      header: "Categoria",
-      accessor: "category",
+      header: "Valor",
+      accessor: "amount",
       width: "150px",
+      Cell: ({ row }: { row: any }) => (
+        <span className={row.category.type === "expense" ? "text-red-500" : ""}>
+          {new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(row.category.type === "expense" ? -row.amount : row.amount)}
+        </span>
+      ),
+    },
+    {
+      header: "Categoria",
+      accessor: "category.name",
+      width: "150px",
+      sortable: true,
       Cell: ({ row }: { row: any }) => row.category.name,
     },
     {
       header: "Type",
-      accessor: "type",
+      accessor: "category.type",
       width: "150px",
+      sortable: true,
       Cell: ({ row }: { row: any }) =>
         row.category.type === "expense" ? (
           <span className="inline-flex items-center px-2.5 py-0.5 justify-center gap-1 rounded-full font-medium text-theme-xs bg-red-50 text-error-600 dark:bg-red-500/15 dark:text-error-500">
@@ -152,6 +153,7 @@ export const ListEntries = () => {
           </span>
         ),
     },
+    { header: "Descrição", accessor: "description" },
     {
       header: "Ações",
       accessor: "actions",

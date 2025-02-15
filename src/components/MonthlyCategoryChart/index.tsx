@@ -42,7 +42,9 @@ export const MonthlyCategoryChart: React.FC<ChartProps> = ({ data }) => {
           </div>
           </div>
           <div class="flex flex-col gap-1">
-          <div>R$ ${total.toLocaleString("pt-BR")}</div>
+          <div> ${
+            data[params[0].dataIndex].type === "expense" && "-"
+          } R$ ${total.toLocaleString("pt-BR")}</div>
           </div>
         </div>
         </div>
