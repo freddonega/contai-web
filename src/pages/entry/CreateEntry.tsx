@@ -101,6 +101,10 @@ export const CreateEntry = () => {
   }, []);
 
   useEffect(() => {
+    console.log(errors);
+  }, [errors]);
+
+  useEffect(() => {
     if (entry) {
       setValue("amount", entry.amount);
       setValue("description", entry.description);
@@ -142,23 +146,27 @@ export const CreateEntry = () => {
   const onSubmit = (data: Omit<CreateEntryData, "id">) => {
     const today = new Date().getDate();
     const nextRunDate = new Date(`${data.period}-${today}`);
-    switch (data.frequency) {
-      case "daily":
-        nextRunDate.setDate(nextRunDate.getDate() + 1);
-        break;
-      case "weekly":
-        nextRunDate.setDate(nextRunDate.getDate() + 7);
-        break;
-      case "monthly":
-        nextRunDate.setMonth(nextRunDate.getMonth() + 1);
-        break;
-      case "yearly":
-        nextRunDate.setFullYear(nextRunDate.getFullYear() + 1);
-        break;
-      default:
-        throw new Error("Invalid frequency");
+    data.recurring = data.recurring || false;
+
+    if (data.recurring) {
+      switch (data.frequency) {
+        case "daily":
+          nextRunDate.setDate(nextRunDate.getDate() + 1);
+          break;
+        case "weekly":
+          nextRunDate.setDate(nextRunDate.getDate() + 7);
+          break;
+        case "monthly":
+          nextRunDate.setMonth(nextRunDate.getMonth() + 1);
+          break;
+        case "yearly":
+          nextRunDate.setFullYear(nextRunDate.getFullYear() + 1);
+          break;
+        default:
+          throw new Error("Invalid frequency");
+      }
+      data.next_run = nextRunDate.toISOString().split("T")[0];
     }
-    data.next_run = nextRunDate.toISOString().split("T")[0];
     if (id) {
       updateMutation.mutate({ id: Number(id), ...data });
     } else {
