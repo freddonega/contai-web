@@ -37,7 +37,13 @@ export const Login = () => {
     <div className="relative flex w-full h-screen px-4 py-6 overflow-hidden bg-white z-1 dark:bg-gray-900 sm:p-0">
       <div className="flex flex-col flex-1 p-6 rounded-2xl sm:rounded-none sm:border-0 sm:p-8">
         <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
+          <div className="flex lg:hidden absolute right-0 top-0 -z-1 w-full max-w-[250px] xl:max-w-[450px]">
+            <img src={grid} alt="grid" />
+          </div>
           <div>
+            <div className="flex lg:hidden  items-center mb-8">
+              <Logo />
+            </div>
             <div className="mb-5 sm:mb-8">
               <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
                 Login
@@ -79,6 +85,9 @@ export const Login = () => {
                 </div>
               </form>
             </div>
+          </div>
+          <div className="flex lg:hidden absolute bottom-0 left-0 -z-1 w-full max-w-[250px] rotate-180 xl:max-w-[450px]">
+            <img src={grid} alt="grid" />
           </div>
         </div>
 

@@ -152,14 +152,14 @@ export const ListCategories = () => {
                   Categorias
                 </h3>
               </div>
-              <div className="flex gap-2">
-                <SearchInput value={search} onChange={handleSearchChange} />
+              <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                 <button
                   onClick={handleCreateCategory}
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                  className="bg-contai-lightBlue text-white px-2 py-2 rounded flex-grow sm:w-auto"
                 >
                   Nova Categoria
                 </button>
+                <SearchInput value={search} onChange={handleSearchChange} />
               </div>
             </div>
           </div>

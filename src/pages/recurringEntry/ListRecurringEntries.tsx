@@ -6,8 +6,11 @@ import {
   useMutation,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { fetchEntries, deleteEntry } from "@/requests/entryRequests";
-import { GetEntriesResponse } from "@/types/entry";
+import {
+  fetchRecurringEntries,
+  deleteRecurringEntry,
+} from "@/requests/recurringEntryRequests";
+import { GetRecurringEntriesResponse } from "@/types/recurringEntry";
 import { useDebounce } from "@/utils/useDebounce";
 import { DynamicTable } from "@/components/DynamicTable";
 import { SearchInput } from "@/components/SearchInput";
@@ -18,13 +21,13 @@ import { FaEye, FaTrash } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 
-export const ListEntries = () => {
+export const ListRecurringEntries = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState<string | undefined>("category.type");
+  const [sortBy, setSortBy] = useState<string | undefined>(undefined);
   const [sortDirection, setSortDirection] = useState<
     "asc" | "desc" | undefined
-  >("desc");
+  >(undefined);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedEntryId, setSelectedEntryId] = useState<
     string | number | null
@@ -34,29 +37,28 @@ export const ListEntries = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const { data, isLoading } = useQuery<GetEntriesResponse>({
+  const { data, isLoading } = useQuery<GetRecurringEntriesResponse>({
     queryKey: [
-      "entries",
+      "recurringEntries",
       { search: debouncedSearch, page, itemsPerPage, sortBy, sortDirection },
     ],
     queryFn: () =>
-      fetchEntries({
+      fetchRecurringEntries({
         search: debouncedSearch,
         page,
         items_per_page: itemsPerPage,
         sort_by: sortBy,
         sort_order: sortDirection,
       }),
-  } as UseQueryOptions<GetEntriesResponse, Error, GetEntriesResponse, readonly unknown[]>);
+  } as UseQueryOptions<GetRecurringEntriesResponse, Error, GetRecurringEntriesResponse, readonly unknown[]>);
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string | number) => deleteEntry(id.toString()),
+    mutationFn: (id: string | number) => deleteRecurringEntry(id.toString()),
     onSuccess: () => {
       setIsConfirmModalOpen(false);
       setSelectedEntryId(null);
-      toast.success("Entrada deletada com sucesso");
-      // Refetch entries after deletion
-      queryClient.invalidateQueries({ queryKey: ["entries"] });
+      toast.success("Lançamento recorrente deletado com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["recurringEntries"] });
     },
     onError: (error: unknown) => {
       setIsConfirmModalOpen(false);
@@ -77,6 +79,11 @@ export const ListEntries = () => {
     setPage(newPage);
   };
 
+  const handleSortChange = (accessor: string, direction: "asc" | "desc") => {
+    setSortBy(accessor);
+    setSortDirection(direction);
+  };
+
   const handleDelete = (id: string | number) => {
     setSelectedEntryId(id);
     setIsConfirmModalOpen(true);
@@ -89,33 +96,33 @@ export const ListEntries = () => {
   };
 
   const handleView = (id: string | number) => {
-    navigate(`/entries/edit/${id}`);
+    navigate(`/recurringEntries/edit/${id}`);
   };
 
   const handleCreateEntry = () => {
-    navigate("/entries/create");
-  };
-
-  const handleSortChange = (accessor: string, direction: "asc" | "desc") => {
-    console.log(accessor, direction);
-    setSortBy(accessor);
-    setSortDirection(direction);
+    navigate("/recurringEntries/create");
   };
 
   const columns = [
     {
-      header: "Período",
-      accessor: "period",
-      width: "200px",
+      header: "Frequência",
+      accessor: "frequency",
+      width: "150px",
       sortable: true,
-      Cell: ({ row }: { row: any }) => (
-        <span>
-          {new Date(row.period + "-02").toLocaleDateString("pt-BR", {
-            year: "numeric",
-            month: "long",
-          })}
-        </span>
-      ),
+      Cell: ({ value }: { value: string }) => {
+        switch (value) {
+          case "daily":
+            return <span>Diário</span>;
+          case "weekly":
+            return <span>Semanal</span>;
+          case "monthly":
+            return <span>Mensal</span>;
+          case "yearly":
+            return <span>Anual</span>;
+          default:
+            return <span>{value}</span>;
+        }
+      },
     },
     {
       header: "Valor",
@@ -153,7 +160,24 @@ export const ListEntries = () => {
           </span>
         ),
     },
-    { header: "Descrição", accessor: "description" },
+
+    {
+      header: "Próxima Execução",
+      accessor: "next_run",
+      width: "200px",
+      sortable: true,
+      Cell: ({ row }: { row: any }) => {
+        const date = new Date(row.next_run);
+        date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+        return date.toLocaleDateString().toString();
+      },
+    },
+    {
+      header: "Descrição",
+      accessor: "description",
+      width: "250px",
+      sortable: true,
+    },
     {
       header: "Ações",
       accessor: "actions",
@@ -185,7 +209,7 @@ export const ListEntries = () => {
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                  Movimentações
+                  Lançamentos Recorrentes
                 </h3>
               </div>
               <div className="flex gap-2 flex-wrap sm:flex-nowrap">
@@ -193,7 +217,7 @@ export const ListEntries = () => {
                   onClick={handleCreateEntry}
                   className="bg-contai-lightBlue text-white px-4 py-2 rounded flex-grow sm:w-auto"
                 >
-                  Nova Entrada
+                  Novo Lançamento
                 </button>
                 <SearchInput value={search} onChange={handleSearchChange} />
               </div>
@@ -247,7 +271,7 @@ export const ListEntries = () => {
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={confirmDelete}
-        message="Tem certeza que deseja deletar esta entrada?"
+        message="Tem certeza que deseja deletar este lançamento recorrente?"
       />
     </div>
   );

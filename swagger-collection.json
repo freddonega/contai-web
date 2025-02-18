@@ -11,7 +11,7 @@
     }
   ],
   "paths": {
-    "/categories": {
+    "/category": {
       "post": {
         "summary": "Cria uma nova categoria",
         "tags": [
@@ -151,7 +151,7 @@
         }
       }
     },
-    "/categories/{id}": {
+    "/category/{id}": {
       "get": {
         "summary": "Obtém uma categoria pelo ID",
         "tags": [
@@ -385,9 +385,23 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "number"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "category_id": {
+                        "type": "number"
+                      },
+                      "category_name": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "total": {
+                        "type": "number"
+                      }
+                    }
                   }
                 }
               }
@@ -763,6 +777,372 @@
         }
       }
     },
+    "/jobs/process_recurring_entries": {
+      "post": {
+        "summary": "Processa lançamentos recorrentes",
+        "tags": [
+          "Jobs"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lançamentos recorrentes processados com sucesso"
+          },
+          "500": {
+            "description": "Erro ao processar lançamentos recorrentes"
+          }
+        }
+      }
+    },
+    "/recurring_entry": {
+      "post": {
+        "summary": "Cria um novo lançamento recorrente",
+        "tags": [
+          "RecurringEntries"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "frequency": {
+                    "type": "string",
+                    "enum": [
+                      "daily",
+                      "weekly",
+                      "monthly",
+                      "yearly"
+                    ]
+                  },
+                  "category_id": {
+                    "type": "integer"
+                  },
+                  "next_run": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "amount",
+                  "description",
+                  "frequency",
+                  "category_id",
+                  "next_run"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lançamento recorrente criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "user_id": {
+                      "type": "integer"
+                    },
+                    "amount": {
+                      "type": "number"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "frequency": {
+                      "type": "string"
+                    },
+                    "category": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "next_run": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao criar lançamento recorrente"
+          }
+        }
+      },
+      "get": {
+        "summary": "Lista lançamentos recorrentes de um usuário",
+        "tags": [
+          "RecurringEntries"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de lançamentos recorrentes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "user_id": {
+                        "type": "integer"
+                      },
+                      "amount": {
+                        "type": "number"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "frequency": {
+                        "type": "string"
+                      },
+                      "category": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "next_run": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao listar lançamentos recorrentes"
+          }
+        }
+      }
+    },
+    "/recurring_entry/{id}": {
+      "get": {
+        "summary": "Obtém um lançamento recorrente pelo ID",
+        "tags": [
+          "RecurringEntries"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "ID do lançamento recorrente"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lançamento recorrente encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "user_id": {
+                      "type": "integer"
+                    },
+                    "amount": {
+                      "type": "number"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "frequency": {
+                      "type": "string"
+                    },
+                    "category": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "next_run": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao buscar lançamento recorrente"
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualiza um lançamento recorrente pelo ID",
+        "tags": [
+          "RecurringEntries"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "ID do lançamento recorrente"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "frequency": {
+                    "type": "string",
+                    "enum": [
+                      "daily",
+                      "weekly",
+                      "monthly",
+                      "yearly"
+                    ]
+                  },
+                  "category": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "next_run": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "amount",
+                  "description",
+                  "frequency",
+                  "category",
+                  "next_run"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lançamento recorrente atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "user_id": {
+                      "type": "integer"
+                    },
+                    "amount": {
+                      "type": "number"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "frequency": {
+                      "type": "string"
+                    },
+                    "category": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "next_run": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao atualizar lançamento recorrente"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Exclui um lançamento recorrente pelo ID",
+        "tags": [
+          "RecurringEntries"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "ID do lançamento recorrente"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Lançamento recorrente excluído com sucesso"
+          },
+          "500": {
+            "description": "Erro ao excluir lançamento recorrente"
+          }
+        }
+      }
+    },
     "/users": {
       "post": {
         "summary": "Cria um novo usuário",
@@ -900,6 +1280,10 @@
     {
       "name": "Entries",
       "description": "API para gerenciar entradas"
+    },
+    {
+      "name": "RecurringEntries",
+      "description": "API para gerenciar lançamentos recorrentes"
     },
     {
       "name": "Users",

@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import { Logo } from "@/components/Logo";
 import grid from "@/images/grid-01.svg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Footer } from "@/components/Footer";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -39,11 +39,12 @@ export const Register = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
+  const navigate = useNavigate();
   const mutation = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
       toast.success("Cadastro bem-sucedido");
-      // Redirect to login page or dashboard
+      navigate("/login");
     },
     onError: (error: unknown) => {
       if (error instanceof AxiosError) {

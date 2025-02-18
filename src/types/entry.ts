@@ -12,6 +12,9 @@ export interface CreateEntryData {
   description?: string;
   category_id: number;
   period: string;
+  recurring?: boolean;
+  frequency?: string;
+  next_run?: string;
 }
 
 export interface UpdateEntryData {
@@ -20,6 +23,9 @@ export interface UpdateEntryData {
   description?: string;
   category_id: number;
   period: string;
+  recurring?: boolean;
+  frequency?: string;
+  next_run?: string;
 }
 
 export interface GetEntriesParams {

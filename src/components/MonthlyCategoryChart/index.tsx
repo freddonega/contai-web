@@ -1,4 +1,3 @@
-import React, { useEffect, useRef } from "react";
 import { ECharts, ReactEChartsProps } from "../ECharts";
 import { MonthlyTotal } from "@/types/dashboard";
 
@@ -6,7 +5,7 @@ interface ChartProps {
   data: MonthlyTotal[];
 }
 
-export const MonthlyCategoryChart: React.FC<ChartProps> = ({ data }) => {
+export const MonthlyCategoryChart = ({ data }: ChartProps) => {
   const option: ReactEChartsProps["option"] = {
     grid: {
       left: 0,
@@ -43,7 +42,7 @@ export const MonthlyCategoryChart: React.FC<ChartProps> = ({ data }) => {
           </div>
           <div class="flex flex-col gap-1">
           <div> ${
-            data[params[0].dataIndex].type === "expense" && "-"
+            data[params[0].dataIndex].type === "expense" ? "-" : ""
           } R$ ${total.toLocaleString("pt-BR")}</div>
           </div>
         </div>
@@ -52,11 +51,11 @@ export const MonthlyCategoryChart: React.FC<ChartProps> = ({ data }) => {
       },
     },
     xAxis: {
-      type: "category",
-      data: data.map((item) => item.category_name),
+      type: "value",
     },
     yAxis: {
-      type: "value",
+      type: "category",
+      data: data.map((item) => item.category_name),
     },
     series: [
       {

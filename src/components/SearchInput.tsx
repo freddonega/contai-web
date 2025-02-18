@@ -10,7 +10,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   onChange,
 }) => {
   return (
-    <div className="relative">
+    <div className="relative flex-grow sm:w-auto">
       <button className="absolute -translate-y-1/2 left-4 top-1/2">
         <svg
           className="fill-gray-500 dark:fill-gray-400"

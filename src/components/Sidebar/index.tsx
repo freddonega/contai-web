@@ -8,7 +8,8 @@ import {
   FaCommentsDollar,
   FaLayerGroup,
   FaRegChartBar,
-} from "react-icons/fa";
+  FaRotate,
+} from "react-icons/fa6";
 import { Footer } from "../Footer";
 
 interface SidebarProps {
@@ -223,6 +224,70 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               }
                             >
                               Nova Movimentação
+                            </NavLink>
+                          </li>
+                        </ul>
+                      </div>
+                      {/* <!-- Dropdown Menu End --> */}
+                    </React.Fragment>
+                  );
+                }}
+              </SidebarLinkGroup>
+              <SidebarLinkGroup
+                activeCondition={pathname.includes("/recurringEntries")}
+              >
+                {(handleClick, open) => {
+                  return (
+                    <React.Fragment>
+                      <NavLink
+                        to="#"
+                        className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out `}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          sidebarExpanded
+                            ? handleClick()
+                            : setSidebarExpanded(true);
+                        }}
+                      >
+                        <FaRotate className="fill-current" size={18} />
+                        Lançamentos Recorrentes
+                        <FaChevronDown
+                          className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${
+                            open && "rotate-180"
+                          }`}
+                        />
+                      </NavLink>
+                      {/* <!-- Dropdown Menu Start --> */}
+                      <div
+                        className={`translate transform overflow-hidden ${
+                          !open && "hidden"
+                        }`}
+                      >
+                        <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
+                          <li>
+                            <NavLink
+                              to="/recurringEntries"
+                              className={({ isActive }) =>
+                                "group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white " +
+                                (isActive &&
+                                  pathname === "/recurringEntries" &&
+                                  "!text-white")
+                              }
+                            >
+                              Listagem
+                            </NavLink>
+                          </li>
+                          <li>
+                            <NavLink
+                              to="/recurringEntries/create"
+                              className={({ isActive }) =>
+                                "group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white " +
+                                (isActive &&
+                                  pathname === "/recurringEntries/create" &&
+                                  "!text-white")
+                              }
+                            >
+                              Novo Lançamento
                             </NavLink>
                           </li>
                         </ul>

@@ -41,13 +41,13 @@ export const Dashboard = () => {
         <div className="space-y-6">
           <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
             <div className="px-4 pt-4 sm:px-6">
-              <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
+              <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between ">
+                <div className="flex-grow sm:w-auto">
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                     Balanço Anual - {year}
                   </h3>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 sm:flex-grow sm:w-auto">
                   <Select
                     options={Array.from({ length: 5 }, (_, i) => {
                       const year = new Date().getFullYear() - i;
@@ -77,12 +77,12 @@ export const Dashboard = () => {
           <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
             <div className="px-4 pt-4 sm:px-6">
               <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
+                <div className="flex-grow sm:w-auto">
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                     Balanço Mensal por Categoria
                   </h3>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2  sm:flex-grow sm:w-auto">
                   <Input
                     defaultValue={monthYear}
                     type="month"

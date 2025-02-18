@@ -21,7 +21,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       pauseOnFocusLoss
       draggable
       pauseOnHover
-      theme="light"
+      theme="dark"
     />
   </BrowserRouter>
 );

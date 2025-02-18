@@ -41,60 +41,64 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
   };
 
   return (
-    <div className="max-w-full overflow-x-auto">
-      <div className="min-w-[617px] 2xl:min-w-[808px]">
-        <table className="min-w-full ">
-          <thead className="border-gray-100 border-y dark:border-white/[0.05]">
-            <tr>
-              {columns.map((column) => (
-                <th
-                  key={column.accessor}
-                  className="fpx-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400"
-                  style={{ width: column.width }}
-                  onClick={() => column.sortable && handleSort(column.accessor)}
-                >
-                  <span
-                    className={`flex items-center gap-1 ${
-                      column.sortable ? "cursor-pointer" : ""
-                    }`}
-                  >
-                    {column.header}
-                    {column.sortable && (
-                      <span>
-                        {sortBy === column.accessor ? (
-                          sortDirection === "asc" ? (
-                            <FaSortUp />
-                          ) : (
-                            <FaSortDown />
-                          )
-                        ) : (
-                          <FaSort />
-                        )}
-                      </span>
-                    )}
-                  </span>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-            {data.map((row, rowIndex) => (
-              <tr key={rowIndex}>
+    <div className="max-w-full">
+      <div className="overflow-x-auto">
+        <div className="min-w-[617px] 2xl:min-w-[808px]">
+          <table className="min-w-full">
+            <thead className="border-gray-100 border-y dark:border-white/[0.05]">
+              <tr>
                 {columns.map((column) => (
-                  <td
+                  <th
                     key={column.accessor}
-                    className="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400"
+                    className="px-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400"
                     style={{ width: column.width }}
+                    onClick={() =>
+                      column.sortable && handleSort(column.accessor)
+                    }
                   >
-                    {column.Cell
-                      ? column.Cell({ value: row[column.accessor], row })
-                      : row[column.accessor]}
-                  </td>
+                    <span
+                      className={`flex items-center gap-1 ${
+                        column.sortable ? "cursor-pointer" : ""
+                      }`}
+                    >
+                      {column.header}
+                      {column.sortable && (
+                        <span>
+                          {sortBy === column.accessor ? (
+                            sortDirection === "asc" ? (
+                              <FaSortUp />
+                            ) : (
+                              <FaSortDown />
+                            )
+                          ) : (
+                            <FaSort />
+                          )}
+                        </span>
+                      )}
+                    </span>
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+              {data.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {columns.map((column) => (
+                    <td
+                      key={column.accessor}
+                      className="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400"
+                      style={{ width: column.width }}
+                    >
+                      {column.Cell
+                        ? column.Cell({ value: row[column.accessor], row })
+                        : row[column.accessor]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       <div className="px-6 py-4 border-t border-gray-200 dark:border-white/[0.05]">
         <div className="flex items-center justify-between">

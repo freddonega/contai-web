@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useDebounce } from "@/utils/useDebounce";
 
 interface SelectProps {
   options: {
@@ -21,6 +22,8 @@ export const SelectSearch = ({
   error,
 }: SelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleOpen = () => {
@@ -43,6 +46,12 @@ export const SelectSearch = ({
     };
   }, []);
 
+  useEffect(() => {
+    onSearchChange({
+      target: { value: debouncedSearch },
+    } as React.ChangeEvent<HTMLInputElement>);
+  }, [debouncedSearch, onSearchChange]);
+
   return (
     <div>
       {label && (
@@ -64,7 +73,7 @@ export const SelectSearch = ({
           <div className="absolute bg-white border border-contai-lightBlue rounded-md mt-1 w-full z-999">
             <input
               type="text"
-              onChange={onSearchChange}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Pesquisar..."
               className="w-full p-2 border-b border-contai-lightBlue"
             />

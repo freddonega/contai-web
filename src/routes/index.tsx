@@ -9,6 +9,8 @@ import { ListCategories } from "@/pages/category/ListCategories";
 import { CreateCategory } from "@/pages/category/CreateCategory";
 import { CreateEntry } from "@/pages/entry/CreateEntry";
 import { ListEntries } from "@/pages/entry/ListEntries";
+import { CreateRecurringEntry } from "@/pages/recurringEntry/CreateRecurringEntry";
+import { ListRecurringEntries } from "@/pages/recurringEntry/ListRecurringEntries";
 
 export const AppRoutes = () => {
   const token = useAuthStore((state) => state.token);
@@ -85,6 +87,30 @@ export const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <CreateEntry />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/recurringEntries"
+        element={
+          <ProtectedRoute>
+            <ListRecurringEntries />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/recurringEntries/edit/:id"
+        element={
+          <ProtectedRoute>
+            <CreateRecurringEntry />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/recurringEntries/create"
+        element={
+          <ProtectedRoute>
+            <CreateRecurringEntry />
           </ProtectedRoute>
         }
       />
