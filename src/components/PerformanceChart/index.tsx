@@ -123,25 +123,7 @@ export const PerformanceChart = ({ data }: PerformanceChartProps) => {
           fontWeight: "bold",
           color: "#fff",
           formatter: (params) => {
-            if (window.innerWidth < 1024) {
-              return "";
-            }
-            const incomeValue = option.series[0].data[params.dataIndex];
-            const percentage = (
-              incomeValue !== 0
-                ? (Number(params.value) / Number(incomeValue)) * 100
-                : 0
-            ).toFixed(0);
-
-            if (Number(percentage) < 70) {
-              return `{value|- R$ ${params.value.toLocaleString(
-                "pt-BR"
-              )}} {percentage_green|${percentage}%} `;
-            } else {
-              return ` {value|- R$ ${params.value.toLocaleString(
-                "pt-BR"
-              )}} {percentage_red|${percentage}%}`;
-            }
+            return `R$ ${params.value.toLocaleString("pt-BR")}`;
           },
         },
       },

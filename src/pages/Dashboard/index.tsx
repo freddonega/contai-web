@@ -7,7 +7,7 @@ import {
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { Select } from "@/components/Select";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Input } from "@/components/Input";
 import { MonthlyCategoryChart } from "@/components/MonthlyCategoryChart";
 
