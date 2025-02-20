@@ -1,30 +1,31 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   useQuery,
   useQueryClient,
   useMutation,
   UseQueryOptions,
-} from "@tanstack/react-query";
-import { fetchEntries, deleteEntry } from "@/requests/entryRequests";
-import { GetEntriesResponse } from "@/types/entry";
-import { useDebounce } from "@/utils/useDebounce";
-import { DynamicTable } from "@/components/DynamicTable";
-import { SearchInput } from "@/components/SearchInput";
-import { ConfirmModal } from "@/components/ConfirmModal";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import { FaEye, FaTrash } from "react-icons/fa";
-import { toast } from "react-toastify";
-import { AxiosError } from "axios";
+} from '@tanstack/react-query';
+import { fetchEntries, deleteEntry } from '@/requests/entryRequests';
+import { GetEntriesResponse } from '@/types/entry';
+import { useDebounce } from '@/utils/useDebounce';
+import { DynamicTable } from '@/components/DynamicTable';
+import { SearchInput } from '@/components/SearchInput';
+import { ConfirmModal } from '@/components/ConfirmModal';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { FaEye, FaTrash } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
 
 export const ListEntries = () => {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState<string | undefined>("category.type");
-  const [sortDirection, setSortDirection] = useState<
-    "asc" | "desc" | undefined
-  >("desc");
+  const [sortBy, setSortBy] = useState<string[]>(['period', 'category.type']);
+  const [sortDirection, setSortDirection] = useState<('asc' | 'desc')[]>([
+    'desc',
+    'desc',
+  ]);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedEntryId, setSelectedEntryId] = useState<
     string | number | null
@@ -36,7 +37,7 @@ export const ListEntries = () => {
 
   const { data, isLoading } = useQuery<GetEntriesResponse>({
     queryKey: [
-      "entries",
+      'entries',
       { search: debouncedSearch, page, itemsPerPage, sortBy, sortDirection },
     ],
     queryFn: () =>
@@ -54,9 +55,9 @@ export const ListEntries = () => {
     onSuccess: () => {
       setIsConfirmModalOpen(false);
       setSelectedEntryId(null);
-      toast.success("Entrada deletada com sucesso");
+      toast.success('Entrada deletada com sucesso');
       // Refetch entries after deletion
-      queryClient.invalidateQueries({ queryKey: ["entries"] });
+      queryClient.invalidateQueries({ queryKey: ['entries'] });
     },
     onError: (error: unknown) => {
       setIsConfirmModalOpen(false);
@@ -64,7 +65,7 @@ export const ListEntries = () => {
       if (error instanceof AxiosError) {
         return toast.error(error.response?.data.error);
       }
-      toast.error("Ocorreu um erro");
+      toast.error('Ocorreu um erro');
     },
   });
 
@@ -93,57 +94,59 @@ export const ListEntries = () => {
   };
 
   const handleCreateEntry = () => {
-    navigate("/entries/create");
+    navigate('/entries/create');
   };
 
-  const handleSortChange = (accessor: string, direction: "asc" | "desc") => {
-    console.log(accessor, direction);
-    setSortBy(accessor);
-    setSortDirection(direction);
+  const handleSortChange = (
+    accessors: string[],
+    directions: ('asc' | 'desc')[],
+  ) => {
+    setSortBy(accessors);
+    setSortDirection(directions);
   };
 
   const columns = [
     {
-      header: "Período",
-      accessor: "period",
-      width: "200px",
+      header: 'Período',
+      accessor: 'period',
+      width: '200px',
       sortable: true,
       Cell: ({ row }: { row: any }) => (
         <span>
-          {new Date(row.period + "-02").toLocaleDateString("pt-BR", {
-            year: "numeric",
-            month: "long",
+          {new Date(row.period + '-02').toLocaleDateString('pt-BR', {
+            year: 'numeric',
+            month: 'long',
           })}
         </span>
       ),
     },
     {
-      header: "Valor",
-      accessor: "amount",
-      width: "150px",
+      header: 'Valor',
+      accessor: 'amount',
+      width: '150px',
       Cell: ({ row }: { row: any }) => (
-        <span className={row.category.type === "expense" ? "text-red-500" : ""}>
-          {new Intl.NumberFormat("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          }).format(row.category.type === "expense" ? -row.amount : row.amount)}
+        <span className={row.category.type === 'expense' ? 'text-red-500' : ''}>
+          {new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          }).format(row.category.type === 'expense' ? -row.amount : row.amount)}
         </span>
       ),
     },
     {
-      header: "Categoria",
-      accessor: "category.name",
-      width: "150px",
+      header: 'Categoria',
+      accessor: 'category.name',
+      width: '150px',
       sortable: true,
       Cell: ({ row }: { row: any }) => row.category.name,
     },
     {
-      header: "Type",
-      accessor: "category.type",
-      width: "150px",
+      header: 'Type',
+      accessor: 'category.type',
+      width: '150px',
       sortable: true,
       Cell: ({ row }: { row: any }) =>
-        row.category.type === "expense" ? (
+        row.category.type === 'expense' ? (
           <span className="inline-flex items-center px-2.5 py-0.5 justify-center gap-1 rounded-full font-medium text-theme-xs bg-red-50 text-error-600 dark:bg-red-500/15 dark:text-error-500">
             Despesa
           </span>
@@ -153,11 +156,11 @@ export const ListEntries = () => {
           </span>
         ),
     },
-    { header: "Descrição", accessor: "description" },
+    { header: 'Descrição', accessor: 'description' },
     {
-      header: "Ações",
-      accessor: "actions",
-      width: "100px",
+      header: 'Ações',
+      accessor: 'actions',
+      width: '100px',
       Cell: ({ row }: { row: any }) => (
         <div className="flex space-x-2">
           <button
@@ -212,7 +215,7 @@ export const ListEntries = () => {
             <DynamicTable
               columns={columns}
               data={
-                data?.entries.map((entry) => ({
+                data?.entries.map(entry => ({
                   ...entry,
                   actions: (
                     <div className="flex space-x-2">

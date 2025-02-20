@@ -5,15 +5,15 @@ export interface Category {
   active: boolean;
 }
 
-export type CreateCategoryData = Omit<Category, "id">;
+export type CreateCategoryData = Omit<Category, 'id'>;
 export type UpdateCategoryData = Category;
 
 export interface GetCategoriesParams {
   search?: string;
   page?: number;
   items_per_page?: number;
-  sort_by?: string;
-  sort_order?: "asc" | "desc";
+  sort_by?: string[];
+  sort_order?: Array<'asc' | 'desc'>;
 }
 
 export interface CategoryResponse {

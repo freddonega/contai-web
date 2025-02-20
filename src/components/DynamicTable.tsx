@@ -1,5 +1,5 @@
-import React from "react";
-import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import React from 'react';
+import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 
 interface Column {
   header: string;
@@ -16,9 +16,9 @@ interface DynamicTableProps {
   itemsPerPage: number;
   totalItems: number;
   onPageChange: (newPage: number) => void;
-  onSortChange?: (accessor: string, direction: "asc" | "desc") => void;
-  sortBy?: string;
-  sortDirection?: "asc" | "desc";
+  onSortChange?: (accessor: string[], direction: ('asc' | 'desc')[]) => void;
+  sortBy?: string[];
+  sortDirection?: ('asc' | 'desc')[];
 }
 
 export const DynamicTable: React.FC<DynamicTableProps> = ({
@@ -34,9 +34,25 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
 }) => {
   const handleSort = (accessor: string) => {
     if (onSortChange) {
-      const direction =
-        sortBy === accessor && sortDirection === "asc" ? "desc" : "asc";
-      onSortChange(accessor, direction);
+      let newSortBy = [...(sortBy || [])];
+      let newSortDirection = [...(sortDirection || [])];
+      const existingIndex = newSortBy.indexOf(accessor);
+
+      if (existingIndex > -1) {
+        if (newSortDirection[existingIndex] === 'asc') {
+          newSortDirection[existingIndex] = 'desc';
+        } else if (newSortDirection[existingIndex] === 'desc') {
+          newSortBy.splice(existingIndex, 1);
+          newSortDirection.splice(existingIndex, 1);
+        } else {
+          newSortDirection[existingIndex] = 'asc';
+        }
+      } else {
+        newSortBy.unshift(accessor);
+        newSortDirection.unshift('asc');
+      }
+
+      onSortChange(newSortBy, newSortDirection);
     }
   };
 
@@ -47,7 +63,7 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
           <table className="min-w-full">
             <thead className="border-gray-100 border-y dark:border-white/[0.05]">
               <tr>
-                {columns.map((column) => (
+                {columns.map(column => (
                   <th
                     key={column.accessor}
                     className="px-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400"
@@ -58,14 +74,15 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
                   >
                     <span
                       className={`flex items-center gap-1 ${
-                        column.sortable ? "cursor-pointer" : ""
+                        column.sortable ? 'cursor-pointer' : ''
                       }`}
                     >
                       {column.header}
                       {column.sortable && (
                         <span>
-                          {sortBy === column.accessor ? (
-                            sortDirection === "asc" ? (
+                          {sortBy?.includes(column.accessor) ? (
+                            sortDirection[sortBy.indexOf(column.accessor)] ===
+                            'asc' ? (
                               <FaSortUp />
                             ) : (
                               <FaSortDown />
@@ -83,7 +100,7 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
             <tbody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
               {data.map((row, rowIndex) => (
                 <tr key={rowIndex}>
-                  {columns.map((column) => (
+                  {columns.map(column => (
                     <td
                       key={column.accessor}
                       className="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400"
@@ -133,14 +150,14 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
                 <li key={index}>
                   <button
                     className={`flex h-10 w-10 items-center justify-center rounded-lg text-theme-sm font-medium text-gray-700 hover:bg-brand-500/[0.08] dark:hover:bg-brand-500 dark:hover:text-white hover:text-brand-500 dark:text-gray-400 ${
-                      index + 1 === page ? "bg-primary text-white" : ""
+                      index + 1 === page ? 'bg-primary text-white' : ''
                     }`}
                     onClick={() => onPageChange(index + 1)}
                   >
                     {index + 1}
                   </button>
                 </li>
-              )
+              ),
             )}
           </ul>
           <button

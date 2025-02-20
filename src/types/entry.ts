@@ -32,8 +32,8 @@ export interface GetEntriesParams {
   search?: string;
   page?: number;
   items_per_page?: number;
-  sort_by?: string;
-  sort_order?: "asc" | "desc";
+  sort_by?: string[];
+  sort_order?: Array<'asc' | 'desc'>;
 }
 
 export interface EntryResponse {

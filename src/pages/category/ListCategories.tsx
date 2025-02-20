@@ -1,30 +1,28 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   useQuery,
   useQueryClient,
   useMutation,
   UseQueryOptions,
-} from "@tanstack/react-query";
-import { fetchCategories, deleteCategory } from "@/requests/categoryRequests";
-import { GetCategoriesResponse } from "@/types/category";
-import { useDebounce } from "@/utils/useDebounce";
-import { DynamicTable } from "@/components/DynamicTable";
-import { SearchInput } from "@/components/SearchInput";
-import { ConfirmModal } from "@/components/ConfirmModal";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import { FaEye, FaTrash } from "react-icons/fa";
-import { toast } from "react-toastify";
-import { AxiosError } from "axios";
+} from '@tanstack/react-query';
+import { fetchCategories, deleteCategory } from '@/requests/categoryRequests';
+import { GetCategoriesResponse } from '@/types/category';
+import { useDebounce } from '@/utils/useDebounce';
+import { DynamicTable } from '@/components/DynamicTable';
+import { SearchInput } from '@/components/SearchInput';
+import { ConfirmModal } from '@/components/ConfirmModal';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { FaEye, FaTrash } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
 
 export const ListCategories = () => {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState<string | undefined>(undefined);
-  const [sortDirection, setSortDirection] = useState<
-    "asc" | "desc" | undefined
-  >(undefined);
+  const [sortBy, setSortBy] = useState<string[]>([]);
+  const [sortDirection, setSortDirection] = useState<('asc' | 'desc')[]>([]);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<
     string | number | null
@@ -36,7 +34,7 @@ export const ListCategories = () => {
 
   const { data, isLoading } = useQuery<GetCategoriesResponse>({
     queryKey: [
-      "categories",
+      'categories',
       { search: debouncedSearch, page, itemsPerPage, sortBy, sortDirection },
     ],
     queryFn: () =>
@@ -54,9 +52,9 @@ export const ListCategories = () => {
     onSuccess: () => {
       setIsConfirmModalOpen(false);
       setSelectedCategoryId(null);
-      toast.success("Categoria deletada com sucesso");
+      toast.success('Categoria deletada com sucesso');
       // Refetch categories after deletion
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
     onError: (error: unknown) => {
       setIsConfirmModalOpen(false);
@@ -64,7 +62,7 @@ export const ListCategories = () => {
       if (error instanceof AxiosError) {
         return toast.error(error.response?.data.error);
       }
-      toast.error("Ocorreu um erro");
+      toast.error('Ocorreu um erro');
     },
   });
 
@@ -77,9 +75,12 @@ export const ListCategories = () => {
     setPage(newPage);
   };
 
-  const handleSortChange = (accessor: string, direction: "asc" | "desc") => {
-    setSortBy(accessor);
-    setSortDirection(direction);
+  const handleSortChange = (
+    accessors: string[],
+    directions: ('asc' | 'desc')[],
+  ) => {
+    setSortBy(accessors);
+    setSortDirection(directions);
   };
 
   const handleDelete = (id: string | number) => {
@@ -98,17 +99,17 @@ export const ListCategories = () => {
   };
 
   const handleCreateCategory = () => {
-    navigate("/categories/create");
+    navigate('/categories/create');
   };
 
   const columns = [
-    { header: "Nome", accessor: "name", width: "250px", sortable: true },
+    { header: 'Nome', accessor: 'name', width: '250px', sortable: true },
     {
-      header: "Tipo",
-      accessor: "type",
+      header: 'Tipo',
+      accessor: 'type',
       sortable: true,
       Cell: ({ value }: { value: string }) =>
-        value === "expense" ? (
+        value === 'expense' ? (
           <span className="inline-flex items-center px-2.5 py-0.5 justify-center gap-1 rounded-full font-medium text-theme-xs bg-red-50 text-error-600 dark:bg-red-500/15 dark:text-error-500">
             Despesa
           </span>
@@ -119,9 +120,9 @@ export const ListCategories = () => {
         ),
     },
     {
-      header: "Ações",
-      accessor: "actions",
-      width: "100px",
+      header: 'Ações',
+      accessor: 'actions',
+      width: '100px',
       Cell: ({ row }: { row: any }) => (
         <div className="flex space-x-2">
           <button
@@ -176,7 +177,7 @@ export const ListCategories = () => {
             <DynamicTable
               columns={columns}
               data={
-                data?.categories.map((category) => ({
+                data?.categories.map(category => ({
                   ...category,
                   actions: (
                     <div className="flex space-x-2">

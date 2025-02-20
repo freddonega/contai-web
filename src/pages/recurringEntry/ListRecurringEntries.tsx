@@ -1,33 +1,31 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   useQuery,
   useQueryClient,
   useMutation,
   UseQueryOptions,
-} from "@tanstack/react-query";
+} from '@tanstack/react-query';
 import {
   fetchRecurringEntries,
   deleteRecurringEntry,
-} from "@/requests/recurringEntryRequests";
-import { GetRecurringEntriesResponse } from "@/types/recurringEntry";
-import { useDebounce } from "@/utils/useDebounce";
-import { DynamicTable } from "@/components/DynamicTable";
-import { SearchInput } from "@/components/SearchInput";
-import { ConfirmModal } from "@/components/ConfirmModal";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import { FaEye, FaTrash } from "react-icons/fa";
-import { toast } from "react-toastify";
-import { AxiosError } from "axios";
+} from '@/requests/recurringEntryRequests';
+import { GetRecurringEntriesResponse } from '@/types/recurringEntry';
+import { useDebounce } from '@/utils/useDebounce';
+import { DynamicTable } from '@/components/DynamicTable';
+import { SearchInput } from '@/components/SearchInput';
+import { ConfirmModal } from '@/components/ConfirmModal';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { FaEye, FaTrash } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
 
 export const ListRecurringEntries = () => {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState<string | undefined>(undefined);
-  const [sortDirection, setSortDirection] = useState<
-    "asc" | "desc" | undefined
-  >(undefined);
+  const [sortBy, setSortBy] = useState<string[] | undefined>();
+  const [sortDirection, setSortDirection] = useState<('asc' | 'desc')[]>([]);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedEntryId, setSelectedEntryId] = useState<
     string | number | null
@@ -39,7 +37,7 @@ export const ListRecurringEntries = () => {
 
   const { data, isLoading } = useQuery<GetRecurringEntriesResponse>({
     queryKey: [
-      "recurringEntries",
+      'recurringEntries',
       { search: debouncedSearch, page, itemsPerPage, sortBy, sortDirection },
     ],
     queryFn: () =>
@@ -57,8 +55,8 @@ export const ListRecurringEntries = () => {
     onSuccess: () => {
       setIsConfirmModalOpen(false);
       setSelectedEntryId(null);
-      toast.success("Lançamento recorrente deletado com sucesso");
-      queryClient.invalidateQueries({ queryKey: ["recurringEntries"] });
+      toast.success('Lançamento recorrente deletado com sucesso');
+      queryClient.invalidateQueries({ queryKey: ['recurringEntries'] });
     },
     onError: (error: unknown) => {
       setIsConfirmModalOpen(false);
@@ -66,7 +64,7 @@ export const ListRecurringEntries = () => {
       if (error instanceof AxiosError) {
         return toast.error(error.response?.data.error);
       }
-      toast.error("Ocorreu um erro");
+      toast.error('Ocorreu um erro');
     },
   });
 
@@ -79,7 +77,10 @@ export const ListRecurringEntries = () => {
     setPage(newPage);
   };
 
-  const handleSortChange = (accessor: string, direction: "asc" | "desc") => {
+  const handleSortChange = (
+    accessor: string[],
+    direction: ('asc' | 'desc')[],
+  ) => {
     setSortBy(accessor);
     setSortDirection(direction);
   };
@@ -100,24 +101,24 @@ export const ListRecurringEntries = () => {
   };
 
   const handleCreateEntry = () => {
-    navigate("/recurringEntries/create");
+    navigate('/recurringEntries/create');
   };
 
   const columns = [
     {
-      header: "Frequência",
-      accessor: "frequency",
-      width: "150px",
+      header: 'Frequência',
+      accessor: 'frequency',
+      width: '150px',
       sortable: true,
       Cell: ({ value }: { value: string }) => {
         switch (value) {
-          case "daily":
+          case 'daily':
             return <span>Diário</span>;
-          case "weekly":
+          case 'weekly':
             return <span>Semanal</span>;
-          case "monthly":
+          case 'monthly':
             return <span>Mensal</span>;
-          case "yearly":
+          case 'yearly':
             return <span>Anual</span>;
           default:
             return <span>{value}</span>;
@@ -125,32 +126,32 @@ export const ListRecurringEntries = () => {
       },
     },
     {
-      header: "Valor",
-      accessor: "amount",
-      width: "150px",
+      header: 'Valor',
+      accessor: 'amount',
+      width: '150px',
       Cell: ({ row }: { row: any }) => (
-        <span className={row.category.type === "expense" ? "text-red-500" : ""}>
-          {new Intl.NumberFormat("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          }).format(row.category.type === "expense" ? -row.amount : row.amount)}
+        <span className={row.category.type === 'expense' ? 'text-red-500' : ''}>
+          {new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          }).format(row.category.type === 'expense' ? -row.amount : row.amount)}
         </span>
       ),
     },
     {
-      header: "Categoria",
-      accessor: "category.name",
-      width: "150px",
+      header: 'Categoria',
+      accessor: 'category.name',
+      width: '150px',
       sortable: true,
       Cell: ({ row }: { row: any }) => row.category.name,
     },
     {
-      header: "Type",
-      accessor: "category.type",
-      width: "150px",
+      header: 'Type',
+      accessor: 'category.type',
+      width: '150px',
       sortable: true,
       Cell: ({ row }: { row: any }) =>
-        row.category.type === "expense" ? (
+        row.category.type === 'expense' ? (
           <span className="inline-flex items-center px-2.5 py-0.5 justify-center gap-1 rounded-full font-medium text-theme-xs bg-red-50 text-error-600 dark:bg-red-500/15 dark:text-error-500">
             Despesa
           </span>
@@ -162,9 +163,9 @@ export const ListRecurringEntries = () => {
     },
 
     {
-      header: "Próxima Execução",
-      accessor: "next_run",
-      width: "200px",
+      header: 'Próxima Execução',
+      accessor: 'next_run',
+      width: '200px',
       sortable: true,
       Cell: ({ row }: { row: any }) => {
         const date = new Date(row.next_run);
@@ -173,15 +174,15 @@ export const ListRecurringEntries = () => {
       },
     },
     {
-      header: "Descrição",
-      accessor: "description",
-      width: "250px",
+      header: 'Descrição',
+      accessor: 'description',
+      width: '250px',
       sortable: true,
     },
     {
-      header: "Ações",
-      accessor: "actions",
-      width: "100px",
+      header: 'Ações',
+      accessor: 'actions',
+      width: '100px',
       Cell: ({ row }: { row: any }) => (
         <div className="flex space-x-2">
           <button
@@ -236,7 +237,7 @@ export const ListRecurringEntries = () => {
             <DynamicTable
               columns={columns}
               data={
-                data?.entries.map((entry) => ({
+                data?.entries.map(entry => ({
                   ...entry,
                   actions: (
                     <div className="flex space-x-2">
