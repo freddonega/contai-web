@@ -1,4 +1,5 @@
-import { ECharts, ReactEChartsProps } from "../ECharts";
+import { ECharts, ReactEChartsProps } from '../ECharts';
+import { format, graphic } from 'echarts';
 
 interface PerformanceChartProps {
   data: {
@@ -9,200 +10,124 @@ interface PerformanceChartProps {
 }
 
 export const PerformanceChart = ({ data }: PerformanceChartProps) => {
-  const option: ReactEChartsProps["option"] = {
+  let category = [];
+  let lineData = [];
+  let barData = [];
+
+  for (let i = 0; i < data.length; i++) {
+    category.push(data[i].month);
+    lineData.push(data[i].income);
+    barData.push(data[i].expense);
+  }
+
+  // option
+  const option: ReactEChartsProps['option'] = {
     tooltip: {
-      trigger: "axis",
+      trigger: 'axis',
       axisPointer: {
-        type: "shadow",
+        type: 'shadow',
       },
-      formatter: (params) => {
-        if (params.length === 0) return ""; // Check if the tooltip is triggered by a click event
+      formatter: params => {
+        if (params.length === 0) return ''; // Check if the tooltip is triggered by a click event
         const income = params[0].value;
         const expense = params[1].value;
         const month = params[0].axisValue;
 
         return `
-          <div class="flex flex-col gap-2">
+           <div class="flex flex-col gap-2">
             <div>${month}</div>
             <div class="flex gap-2">
               <div class="flex flex-col gap-1">
                 <div class="flex items-center gap-1">
-                  <span style="display:inline-block;width:10px;height:10px;background-color:#21264A;border-radius:50%;"></span>
+                  <span style="display:inline-block;width:10px;height:10px;background-color:#8F96CC;border-radius:50%;"></span>
                   <span>Receita:</span>
                 </div>
                 <div class="flex items-center gap-1">
-                  <span style="display:inline-block;width:10px;height:10px;background-color:#D93C0A;border-radius:50%;"></span>
+                  <span style="display:inline-block;width:10px;height:10px;background-color:#F08060;border-radius:50%;"></span>
                   <span>Despesa:</span>
                 </div>
               </div>
               <div class="flex flex-col gap-1">
-                <div>R$ ${income.toLocaleString("pt-BR")}</div>
-                <div>- R$ ${expense.toLocaleString("pt-BR")}</div>
+                <div>R$ ${income.toLocaleString('pt-BR')}</div>
+                <div>- R$ ${expense.toLocaleString('pt-BR')}</div>
               </div>
             </div>
           </div>
         `;
       },
     },
-    dataZoom: [
-      {
-        type: "inside",
-        start: 0,
-        end: 100,
-        zoomOnMouseWheel: "ctrl",
-        zoomLock: true,
-      },
-    ],
-
-    legend: {
-      top: "bottom",
-      data: ["Intention"],
-    },
-
-    grid: {
-      left: 10,
-      right: 0,
-      bottom: 0,
-      top: 0,
-      containLabel: true,
-      lineStyle: {
-        color: "#7581BD",
-      },
-    },
 
     xAxis: {
-      splitLine: {
+      data: category,
+      axisLine: {
         lineStyle: {
-          color: "#7581BD",
-        },
-      },
-      type: "value",
-      label: {
-        show: true,
-
-        backgroundColor: "#7581BD",
-      },
-      axisPointer: {
-        value: "2016-10-7",
-        snap: true,
-        lineStyle: {
-          color: "#7581BD",
-          width: 2,
-        },
-        label: {
-          show: true,
-
-          backgroundColor: "#7581BD",
-        },
-        handle: {
-          show: false,
-          color: "#7581BD",
+          color: '#ccc',
         },
       },
     },
     yAxis: {
-      type: "category",
-      data: data.map((item) => item.month),
-      lineStyle: {
-        color: "#7581BD",
+      splitLine: { show: false },
+      axisLine: {
+        lineStyle: {
+          color: '#ccc',
+        },
       },
     },
+
     series: [
       {
-        name: "Receita",
-        type: "bar",
-        data: data.map((item) => item.income),
-
-        color: "#21264A",
-
-        large: true,
-        label: {
-          show: true,
-          position: "insideRight",
-          fontSize: 12,
-          fontWeight: "bold",
-          color: "#fff",
-          formatter: (params) => {
-            return `R$ ${params.value.toLocaleString("pt-BR")}`;
-          },
-        },
+        name: 'Receita',
+        type: 'line',
+        smooth: true,
+        showAllSymbol: true,
+        symbol: 'emptyCircle',
+        symbolSize: 5,
+        data: lineData,
+        color: '#8F96CC',
       },
       {
-        name: "Despesa",
-        type: "bar",
-        barGap: "-100%",
-        data: data.map((item) => item.expense),
-        color: "#8F96CC",
-        label: {
-          show: true,
-          position: "insideLeft",
-          distance: 10,
-          overflow: "truncate",
-
-          rich: {
-            percentage_green: {
-              fontSize: 10,
-              color: "#171C36",
-              fontWeight: "bold",
-            },
-            percentage_red: {
-              fontSize: 10,
-              color: "#FF5C5C",
-              fontWeight: "bold",
-            },
-            value: {
-              fontSize: 12,
-              fontWeight: "bold",
-              color: "#fff",
-            },
-          },
-          formatter: (params) => {
-            if (window.innerWidth < 1024) {
-              return "";
-            }
-
-            const incomeValue = option.series[0].data[params.dataIndex];
-            const percentage = (
-              incomeValue !== 0
-                ? (Number(params.value) / Number(incomeValue)) * 100
-                : 0
-            ).toFixed(0);
-
-            if (Number(percentage) < 70) {
-              return `{value|- R$ ${params.value.toLocaleString(
-                "pt-BR"
-              )}} {percentage_green|${percentage}%} `;
-            } else {
-              return ` {value|- R$ ${params.value.toLocaleString(
-                "pt-BR"
-              )}} {percentage_red|${percentage}%}`;
-            }
-          },
+        name: 'Despesa',
+        type: 'bar',
+        barWidth: 12,
+        itemStyle: {
+          borderRadius: [5, 5, 0, 0],
+          color: new graphic.LinearGradient(1, 0, 0, 0, [
+            { offset: 0, color: '#F08060' },
+            { offset: 1, color: '#D93C0A' },
+          ]),
         },
+        data: barData,
       },
-    ],
-    media: [
       {
-        query: {
-          maxWidth: 600,
+        name: 'Receita',
+        type: 'bar',
+        barGap: '-100%',
+        barWidth: 10,
+        itemStyle: {
+          color: new graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(20,200,212,0)' },
+            { offset: 0.2, color: 'rgba(20,200,212,0)' },
+            { offset: 1, color: 'rgba(20,200,212,0)' },
+          ]),
         },
-        option: {
-          series: [
-            {
-              label: {
-                show: false,
-              },
-            },
-            {
-              label: {
-                show: false,
-              },
-            },
-          ],
+        z: -12,
+        data: lineData,
+      },
+      {
+        name: 'dotted',
+        type: 'pictorialBar',
+        symbol: 'rect',
+        itemStyle: {
+          color: '#8F96CC',
         },
+        symbolRepeat: true,
+        symbolSize: [10, 4],
+        symbolMargin: 1,
+        z: -10,
+        data: lineData,
       },
     ],
   };
 
-  return <ECharts option={option} style={{ height: "400px" }} />;
+  return <ECharts option={option} style={{ height: '400px' }} />;
 };

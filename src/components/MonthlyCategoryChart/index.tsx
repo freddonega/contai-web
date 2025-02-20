@@ -1,3 +1,4 @@
+import { graphic } from "echarts";
 import { ECharts, ReactEChartsProps } from "../ECharts";
 import { MonthlyTotal } from "@/types/dashboard";
 
@@ -25,7 +26,7 @@ export const MonthlyCategoryChart = ({ data }: ChartProps) => {
         const category = params[0].axisValue;
 
         const color =
-          data[params[0].dataIndex].type === "income" ? "green" : "red";
+          data[params[0].dataIndex].type === "income" ? "#0AD966" : "#D93C0A";
         return `
         <div class="flex flex-col gap-2">
         <div>${category}</div>
@@ -61,9 +62,19 @@ export const MonthlyCategoryChart = ({ data }: ChartProps) => {
       {
         data: data.map((item) => item.total),
         type: "bar",
+        barWidth: 10,
         itemStyle: {
+          borderRadius: [0, 5, 5, 0],
           color: (params: any) =>
-            data[params.dataIndex].type === "income" ? "green" : "red",
+            data[params.dataIndex].type === "income"
+              ? new graphic.LinearGradient(1, 0, 0, 0, [
+                  { offset: 0, color: "#4AE88A" },
+                  { offset: 1, color: "#0AD966" },
+                ])
+              : new graphic.LinearGradient(1, 0, 0, 0, [
+                  { offset: 0, color: "#F08060" },
+                  { offset: 1, color: "#D93C0A" },
+                ]),
         },
       },
     ],
