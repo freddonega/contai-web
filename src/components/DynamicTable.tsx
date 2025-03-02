@@ -19,7 +19,6 @@ interface DynamicTableProps {
   onSortChange?: (accessor: string[], direction: ('asc' | 'desc')[]) => void;
   sortBy?: string[];
   sortDirection?: ('asc' | 'desc')[];
-  enablePagination?: boolean;
 }
 
 export const DynamicTable: React.FC<DynamicTableProps> = ({
@@ -32,7 +31,6 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
   onSortChange,
   sortBy,
   sortDirection,
-  enablePagination = false,
 }) => {
   const handleSort = (accessor: string) => {
     if (onSortChange) {
@@ -119,7 +117,7 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
           </table>
         </div>
       </div>
-      {enablePagination && (
+      {page && (
         <div className="px-6 py-4 border-t border-gray-200 dark:border-white/[0.05]">
           <div className="flex items-center justify-between">
             <button

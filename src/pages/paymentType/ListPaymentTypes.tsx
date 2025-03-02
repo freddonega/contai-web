@@ -5,7 +5,6 @@ import {
   fetchPaymentTypes,
   deletePaymentType,
 } from '@/requests/paymentTypeRequests';
-import { GetPaymentTypesResponse } from '@/types/paymentType';
 import { useDebounce } from '@/utils/useDebounce';
 import { DynamicTable } from '@/components/DynamicTable';
 import { SearchInput } from '@/components/SearchInput';
@@ -17,13 +16,9 @@ import { AxiosError } from 'axios';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 
-interface ListPaymentTypesProps {
-  enablePagination?: boolean;
-}
+interface ListPaymentTypesProps {}
 
-export const ListPaymentTypes = ({
-  enablePagination = false,
-}: ListPaymentTypesProps) => {
+export const ListPaymentTypes = () => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState<string[]>([]);
@@ -45,8 +40,8 @@ export const ListPaymentTypes = ({
     queryFn: () =>
       fetchPaymentTypes({
         search: debouncedSearch,
-        page: enablePagination ? page : undefined,
-        items_per_page: enablePagination ? itemsPerPage : undefined,
+        page,
+        items_per_page: itemsPerPage,
         sort_by: sortBy,
         sort_order: sortDirection,
       }),
@@ -72,9 +67,7 @@ export const ListPaymentTypes = ({
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
-    if (enablePagination) {
-      setPage(1);
-    }
+    setPage(1);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -188,6 +181,9 @@ export const ListPaymentTypes = ({
                   ),
                 })) || []
               }
+              page={page}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
               onSortChange={handleSortChange}
               sortBy={sortBy}
               sortDirection={sortDirection}
