@@ -1,33 +1,37 @@
-import { useForm, Controller } from "react-hook-form";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { createEntry, fetchEntry, updateEntry } from "@/requests/entryRequests";
-import { Input } from "@/components/Input";
-import { SelectSearch } from "@/components/SelectSearch";
-import { CreateEntryData, Entry } from "@/types/entry";
-import { toast } from "react-toastify";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { fetchCategories } from "@/requests/categoryRequests";
-import { CurrencyInput } from "react-currency-mask";
-import Checkbox from "@/components/Checkbox";
-import { ButtonSelector } from "@/components/ButtonSelector";
-import { use } from "echarts";
+import { useForm, Controller } from 'react-hook-form';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { createEntry, fetchEntry, updateEntry } from '@/requests/entryRequests';
+import { Input } from '@/components/Input';
+import { SelectSearch } from '@/components/SelectSearch';
+import { CreateEntryData } from '@/types/entry';
+import { toast } from 'react-toastify';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { fetchCategories } from '@/requests/categoryRequests';
+import { CurrencyInput } from 'react-currency-mask';
+import Checkbox from '@/components/Checkbox';
+import { ButtonSelector } from '@/components/ButtonSelector';
+import { fetchPaymentTypes } from '@/requests/paymentTypeRequests';
 
 // Define the validation schema
 const schema = yup.object().shape({
   amount: yup
     .number()
-    .required("O valor da movimentação é obrigatório")
-    .min(0, "O valor deve ser maior que 0"),
+    .required('O valor da movimentação é obrigatório')
+    .min(0, 'O valor deve ser maior que 0'),
   description: yup.string(),
-  category_id: yup.number().required("Categoria é obrigatória"),
-  period: yup.string().required("Período é obrigatório"),
+  category_id: yup.number().required('Categoria é obrigatória'),
+  period: yup.string().required('Período é obrigatório'),
   recurring: yup.boolean(),
-  frequency: yup.string().when("recurring", {
+  frequency: yup.string().when('recurring', {
     is: true,
-    then: (schema) => schema.required("Frequência é obrigatória"),
+    then: schema => schema.required('Frequência é obrigatória'),
+  }),
+  payment_type_id: yup.number().when('category_type', {
+    is: 'expense',
+    then: schema => schema.required('Tipo de pagamento é obrigatório'),
   }),
 });
 
@@ -35,7 +39,8 @@ export const CreateEntry = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [categoryOptions, setCategoryOptions] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
+  const [paymentTypeOptions, setPaymentTypeOptions] = useState([]);
 
   const {
     register,
@@ -47,23 +52,23 @@ export const CreateEntry = () => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      period: new Date().toISOString().split("T")[0].slice(0, 7),
+      period: new Date().toISOString().split('T')[0].slice(0, 7),
       recurring: false,
     },
   });
 
-  const watchCategory = watch("category_id");
-  const recurring = watch("recurring");
+  const watchCategory = watch('category_id');
+  const recurring = watch('recurring');
 
   const { data: entry, isLoading: isFetchingEntry } = useQuery({
-    queryKey: ["entry", id],
+    queryKey: ['entry', id],
     queryFn: () => fetchEntry(id),
     enabled: !!id,
   });
 
   const { data: categories } = useQuery({
     queryKey: [
-      "categories",
+      'categories',
       {
         search,
       },
@@ -76,15 +81,24 @@ export const CreateEntry = () => {
       }),
   });
 
+  const { data: paymentTypes } = useQuery({
+    queryKey: ['paymentTypes'],
+    queryFn: () =>
+      fetchPaymentTypes({
+        page: 1,
+        items_per_page: 1000,
+      }),
+  });
+
   useEffect(() => {
     if (categories) {
       setCategoryOptions(
-        categories.categories.map((category) => ({
+        categories.categories.map(category => ({
           value: category.id,
           label: `${category.name} (${
-            category.type === "expense" ? "Despesa" : "Receita"
+            category.type === 'expense' ? 'Despesa' : 'Receita'
           })`,
-        }))
+        })),
       );
     }
   }, [categories]);
@@ -93,12 +107,31 @@ export const CreateEntry = () => {
     if (categories) {
       if (categories.categories.length === 0) {
         toast.error(
-          "Você precisa criar uma categoria antes de criar uma movimentação"
+          'Você precisa criar uma categoria antes de criar uma movimentação',
         );
-        navigate("/categories");
+        navigate('/categories');
+      }
+    }
+    if (paymentTypes) {
+      if (paymentTypes.length === 0) {
+        toast.error(
+          'Você precisa criar um tipo de pagamento antes de criar uma movimentação',
+        );
+        navigate('/paymentTypes');
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (paymentTypes) {
+      setPaymentTypeOptions(
+        paymentTypes.map(paymentType => ({
+          value: paymentType.id,
+          label: paymentType.name,
+        })),
+      );
+    }
+  }, [paymentTypes]);
 
   useEffect(() => {
     console.log(errors);
@@ -106,24 +139,29 @@ export const CreateEntry = () => {
 
   useEffect(() => {
     if (entry) {
-      setValue("amount", entry.amount);
-      setValue("description", entry.description);
-      setValue("category_id", entry.category_id);
-      setValue("period", entry.period);
+      setValue('amount', entry.amount);
+      setValue('description', entry.description);
+      setValue('category_id', entry.category.id);
+      setValue('period', entry.period);
+
+      if (entry.category.type === 'expense') {
+        console.log(entry.payment_type?.id);
+        setValue('payment_type_id', entry.payment_type?.id);
+      }
     }
   }, [entry, setValue]);
 
   const createMutation = useMutation({
     mutationFn: createEntry,
     onSuccess: () => {
-      toast.success("Entrada criada com sucesso");
-      navigate("/entries");
+      toast.success('Entrada criada com sucesso');
+      navigate('/entries');
     },
     onError: (error: any) => {
       toast.error(
         `Erro ao criar entrada: ${
           error.response?.data?.message || error.message
-        }`
+        }`,
       );
     },
   });
@@ -131,41 +169,41 @@ export const CreateEntry = () => {
   const updateMutation = useMutation({
     mutationFn: updateEntry,
     onSuccess: () => {
-      toast.success("Entrada atualizada com sucesso");
-      navigate("/entries");
+      toast.success('Entrada atualizada com sucesso');
+      navigate('/entries');
     },
     onError: (error: any) => {
       toast.error(
         `Erro ao atualizar entrada: ${
           error.response?.data?.message || error.message
-        }`
+        }`,
       );
     },
   });
 
-  const onSubmit = (data: Omit<CreateEntryData, "id">) => {
+  const onSubmit = (data: Omit<CreateEntryData, 'id'>) => {
     const today = new Date().getDate();
     const nextRunDate = new Date(`${data.period}-${today}`);
     data.recurring = data.recurring || false;
 
     if (data.recurring) {
       switch (data.frequency) {
-        case "daily":
+        case 'daily':
           nextRunDate.setDate(nextRunDate.getDate() + 1);
           break;
-        case "weekly":
+        case 'weekly':
           nextRunDate.setDate(nextRunDate.getDate() + 7);
           break;
-        case "monthly":
+        case 'monthly':
           nextRunDate.setMonth(nextRunDate.getMonth() + 1);
           break;
-        case "yearly":
+        case 'yearly':
           nextRunDate.setFullYear(nextRunDate.getFullYear() + 1);
           break;
         default:
-          throw new Error("Invalid frequency");
+          throw new Error('Invalid frequency');
       }
-      data.next_run = nextRunDate.toISOString().split("T")[0];
+      data.next_run = nextRunDate.toISOString().split('T')[0];
     }
     if (id) {
       updateMutation.mutate({ id: Number(id), ...data });
@@ -179,7 +217,7 @@ export const CreateEntry = () => {
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-contai-darkBlue dark:bg-white/[0.03] ">
         <div className="px-6 py-5">
           <h3 className="text-base font-medium text-gray-800 dark:text-white/90">
-            {id ? "Editar movimentação" : "Cadastro de movimentação"}
+            {id ? 'Editar movimentação' : 'Cadastro de movimentação'}
           </h3>
         </div>
         <div className="p-4 border-t border-gray-100 dark:border-contai-darkBlue sm:p-6">
@@ -205,30 +243,40 @@ export const CreateEntry = () => {
               label="Descrição"
               type="text"
               placeholder="ex: Salário"
-              {...register("description")}
+              {...register('description')}
               error={errors.description?.message}
             />
             <SelectSearch
               label="Categoria"
               options={categoryOptions}
-              onSearchChange={(e) => setSearch(e.target.value)}
-              onChange={(value) => {
+              onSearchChange={e => setSearch(e.target.value)}
+              onChange={value => {
                 console.log(value);
-                setValue("category_id", Number(value));
+                setValue('category_id', Number(value));
               }}
               value={watchCategory?.toString()}
               error={errors.category_id?.message}
             />
+            {categories?.categories.find(option => option.id === watchCategory)
+              ?.type === 'expense' && (
+              <ButtonSelector
+                label="Tipo de pagamento"
+                options={paymentTypeOptions}
+                value={watch('payment_type_id')}
+                onChange={value => setValue('payment_type_id', Number(value))}
+                error={errors.payment_type_id?.message}
+              />
+            )}
             <Input
               label="Período"
               type="month"
               placeholder="ex: 2023-01"
-              {...register("period")}
+              {...register('period')}
               error={errors.period?.message}
             />
             <div>
               <label className="flex items-center">
-                <Checkbox {...register("recurring")} label="Recorrente?" />
+                <Checkbox {...register('recurring')} label="Recorrente?" />
               </label>
             </div>
             {recurring && (
@@ -239,10 +287,10 @@ export const CreateEntry = () => {
                   <ButtonSelector
                     label="Selecione a frequência"
                     options={[
-                      { value: "daily", label: "Diária" },
-                      { value: "weekly", label: "Semanal" },
-                      { value: "monthly", label: "Mensal" },
-                      { value: "yearly", label: "Anual" },
+                      { value: 'daily', label: 'Diária' },
+                      { value: 'weekly', label: 'Semanal' },
+                      { value: 'monthly', label: 'Mensal' },
+                      { value: 'yearly', label: 'Anual' },
                     ]}
                     value={field.value}
                     onChange={field.onChange}
@@ -257,10 +305,10 @@ export const CreateEntry = () => {
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
                 {createMutation.isPending || updateMutation.isPending
-                  ? "Carregando..."
+                  ? 'Carregando...'
                   : id
-                  ? "Atualizar"
-                  : "Salvar"}
+                  ? 'Atualizar'
+                  : 'Salvar'}
               </button>
             </div>
           </div>

@@ -1,19 +1,21 @@
-import React from "react";
-import { Dashboard } from "@/pages/Dashboard";
-import { Login } from "@/pages/Login";
-import { Register } from "@/pages/Register";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuthStore } from "@/storage/authStorage";
-import { DefaultLayout as Layout } from "@/layout/DefaultLayout";
-import { ListCategories } from "@/pages/category/ListCategories";
-import { CreateCategory } from "@/pages/category/CreateCategory";
-import { CreateEntry } from "@/pages/entry/CreateEntry";
-import { ListEntries } from "@/pages/entry/ListEntries";
-import { CreateRecurringEntry } from "@/pages/recurringEntry/CreateRecurringEntry";
-import { ListRecurringEntries } from "@/pages/recurringEntry/ListRecurringEntries";
+import React from 'react';
+import { Dashboard } from '@/pages/Dashboard';
+import { Login } from '@/pages/Login';
+import { Register } from '@/pages/Register';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthStore } from '@/storage/authStorage';
+import { DefaultLayout as Layout } from '@/layout/DefaultLayout';
+import { ListCategories } from '@/pages/category/ListCategories';
+import { CreateCategory } from '@/pages/category/CreateCategory';
+import { CreateEntry } from '@/pages/entry/CreateEntry';
+import { ListEntries } from '@/pages/entry/ListEntries';
+import { CreateRecurringEntry } from '@/pages/recurringEntry/CreateRecurringEntry';
+import { ListRecurringEntries } from '@/pages/recurringEntry/ListRecurringEntries';
+import { ListPaymentTypes } from '@/pages/paymentType/ListPaymentTypes';
+import { CreatePaymentType } from '@/pages/paymentType/CreatePaymentType';
 
 export const AppRoutes = () => {
-  const token = useAuthStore((state) => state.token);
+  const token = useAuthStore(state => state.token);
 
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     if (!token) {
@@ -111,6 +113,30 @@ export const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <CreateRecurringEntry />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/paymentTypes"
+        element={
+          <ProtectedRoute>
+            <ListPaymentTypes />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/paymentTypes/edit/:id"
+        element={
+          <ProtectedRoute>
+            <CreatePaymentType />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/paymentTypes/create"
+        element={
+          <ProtectedRoute>
+            <CreatePaymentType />
           </ProtectedRoute>
         }
       />

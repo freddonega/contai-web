@@ -101,6 +101,32 @@
               "default": 10
             },
             "description": "Número de itens por página"
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "schema": {
+              "type": [
+                "string",
+                "array"
+              ]
+            },
+            "description": "Campo de ordenação"
+          },
+          {
+            "in": "query",
+            "name": "sortOrder",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ]
+              }
+            },
+            "description": "Ordem de ordenação (asc ou desc)"
           }
         ],
         "responses": {
@@ -136,6 +162,17 @@
                     },
                     "itemsPerPage": {
                       "type": "integer"
+                    },
+                    "sortBy": {
+                      "type": [
+                        "string",
+                        "array"
+                      ],
+                      "description": "Campo de ordenação"
+                    },
+                    "sortOrder": {
+                      "type": "string",
+                      "description": "Ordem de ordenação (asc ou desc)"
                     }
                   }
                 }
@@ -416,6 +453,192 @@
         }
       }
     },
+    "/dashboard/month/current": {
+      "get": {
+        "summary": "Retrieve the balance for the current month and the percentage change compared to the previous month",
+        "tags": [
+          "Dashboard"
+        ],
+        "responses": {
+          "200": {
+            "description": "The balance for the current month and the percentage change",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "currentMonthBalance": {
+                      "type": "number"
+                    },
+                    "previousMonthBalance": {
+                      "type": "number"
+                    },
+                    "percentageChange": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/dashboard/category/comparison": {
+      "get": {
+        "summary": "Obtém a categoria com maior movimentação em income e expense do mês atual e compara com o mês anterior",
+        "tags": [
+          "Dashboard"
+        ],
+        "responses": {
+          "200": {
+            "description": "Comparação de categorias",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "highestIncome": {
+                      "type": "object",
+                      "properties": {
+                        "category": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "number"
+                        },
+                        "percentageChange": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "highestExpense": {
+                      "type": "object",
+                      "properties": {
+                        "category": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "number"
+                        },
+                        "percentageChange": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ID do usuário não encontrado no token"
+          },
+          "500": {
+            "description": "Erro Interno do Servidor"
+          }
+        }
+      }
+    },
+    "/dashboard/month/current/ratio": {
+      "get": {
+        "summary": "Retrieve the income/expense ratio for the current month",
+        "tags": [
+          "Dashboard"
+        ],
+        "responses": {
+          "200": {
+            "description": "The income/expense ratio",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ratio": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/dashboard/balance/survival": {
+      "get": {
+        "summary": "Retrieve the survival time for the user",
+        "tags": [
+          "Dashboard"
+        ],
+        "responses": {
+          "200": {
+            "description": "The survival time in months",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "survivalTime": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/dashboard/balance/total": {
+      "get": {
+        "summary": "Retrieve the total balance for the user",
+        "tags": [
+          "Dashboard"
+        ],
+        "responses": {
+          "200": {
+            "description": "The total balance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalBalance": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/entries": {
       "post": {
         "summary": "Cria uma nova entrada.",
@@ -440,6 +663,9 @@
                   },
                   "period": {
                     "type": "string"
+                  },
+                  "payment_type_id": {
+                    "type": "integer"
                   }
                 },
                 "required": [
@@ -474,7 +700,10 @@
                     "user_id": {
                       "type": "integer"
                     },
-                    "period": null
+                    "period": null,
+                    "payment_type_id": {
+                      "type": "integer"
+                    }
                   }
                 }
               }
@@ -527,19 +756,25 @@
             "in": "query",
             "name": "sort_by",
             "schema": {
-              "type": "string"
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             },
-            "description": "Campo para ordenar as entradas"
+            "description": "Campos para ordenar as entradas"
           },
           {
             "in": "query",
             "name": "sort_order",
             "schema": {
-              "type": "string",
-              "enum": [
-                "ASC",
-                "DESC"
-              ]
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ]
+              }
             },
             "description": "Ordem de classificação das entradas"
           }
@@ -586,14 +821,20 @@
                       "type": "integer"
                     },
                     "sort_by": {
-                      "type": "string"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "sort_order": {
-                      "type": "string",
-                      "enum": [
-                        "asc",
-                        "desc"
-                      ]
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
                     }
                   }
                 }
@@ -697,6 +938,9 @@
                   },
                   "period": {
                     "type": "string"
+                  },
+                  "payment_type_id": {
+                    "type": "integer"
                   }
                 },
                 "required": [
@@ -731,7 +975,10 @@
                     "user_id": {
                       "type": "integer"
                     },
-                    "period": null
+                    "period": null,
+                    "payment_type_id": {
+                      "type": "integer"
+                    }
                   }
                 }
               }
@@ -778,7 +1025,7 @@
       }
     },
     "/jobs/process_recurring_entries": {
-      "post": {
+      "get": {
         "summary": "Processa lançamentos recorrentes",
         "tags": [
           "Jobs"
@@ -789,6 +1036,224 @@
           },
           "500": {
             "description": "Erro ao processar lançamentos recorrentes"
+          }
+        }
+      }
+    },
+    "/payment_types": {
+      "post": {
+        "summary": "Cria um novo tipo de pagamento",
+        "tags": [
+          "PaymentTypes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tipo de pagamento criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro de validação"
+          }
+        }
+      },
+      "get": {
+        "summary": "Lista tipos de pagamento",
+        "tags": [
+          "PaymentTypes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de tipos de pagamento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro Interno do Servidor"
+          }
+        }
+      }
+    },
+    "/payment_types/{id}": {
+      "get": {
+        "summary": "Obtém um tipo de pagamento pelo ID",
+        "tags": [
+          "PaymentTypes"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "ID do tipo de pagamento"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tipo de pagamento encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tipo de pagamento não encontrado"
+          },
+          "500": {
+            "description": "Erro Interno do Servidor"
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualiza um tipo de pagamento pelo ID",
+        "tags": [
+          "PaymentTypes"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "ID do tipo de pagamento"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tipo de pagamento atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro de validação"
+          },
+          "404": {
+            "description": "Tipo de pagamento não encontrado"
+          },
+          "500": {
+            "description": "Erro Interno do Servidor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Exclui um tipo de pagamento pelo ID",
+        "tags": [
+          "PaymentTypes"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "ID do tipo de pagamento"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tipo de pagamento excluído com sucesso"
+          },
+          "404": {
+            "description": "Tipo de pagamento não encontrado"
+          },
+          "500": {
+            "description": "Erro Interno do Servidor"
           }
         }
       }
@@ -1280,6 +1745,10 @@
     {
       "name": "Entries",
       "description": "API para gerenciar entradas"
+    },
+    {
+      "name": "PaymentTypes",
+      "description": "API para gerenciar tipos de pagamento"
     },
     {
       "name": "RecurringEntries",

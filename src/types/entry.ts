@@ -2,7 +2,15 @@ export interface Entry {
   id: number;
   amount: number;
   description?: string;
-  category_id: number;
+  category: {
+    id: number;
+    name: string;
+    type: string;
+  };
+  payment_type?: {
+    id: number;
+    name: string;
+  };
   user_id: number;
   period: string;
 }

@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef } from 'react';
 
 interface Option {
   value: string | number;
@@ -22,7 +22,7 @@ export const ButtonSelector = forwardRef<HTMLDivElement, ButtonSelectorProps>(
       if (multiple) {
         const selectedArray = Array.isArray(value) ? value : [];
         newValue = selectedArray.includes(optionValue)
-          ? selectedArray.filter((v) => v !== optionValue)
+          ? selectedArray.filter(v => v !== optionValue)
           : [...selectedArray, optionValue];
       } else {
         newValue = value === optionValue ? null : optionValue;
@@ -39,7 +39,7 @@ export const ButtonSelector = forwardRef<HTMLDivElement, ButtonSelectorProps>(
           </label>
         )}
         <div className="flex gap-2 bg-black/50 p-3 rounded-lg">
-          {options.map((option) => {
+          {options.map(option => {
             const isSelected = multiple
               ? Array.isArray(value) && value.includes(option.value)
               : value === option.value;
@@ -50,7 +50,7 @@ export const ButtonSelector = forwardRef<HTMLDivElement, ButtonSelectorProps>(
                 key={option.value}
                 onClick={() => handleSelect(option.value)}
                 className={`px-4 py-2 rounded ${
-                  isSelected ? "bg-contai-lightBlue text-white" : "bg-black/80 "
+                  isSelected ? 'bg-contai-lightBlue text-white' : 'bg-black/80 '
                 }`}
               >
                 {option.label}
@@ -61,5 +61,5 @@ export const ButtonSelector = forwardRef<HTMLDivElement, ButtonSelectorProps>(
         {error && <span className="text-red-500 text-sm">{error}</span>}
       </div>
     );
-  }
+  },
 );
