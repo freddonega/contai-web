@@ -19,6 +19,7 @@ interface DynamicTableProps {
   onSortChange?: (accessor: string[], direction: ('asc' | 'desc')[]) => void;
   sortBy?: string[];
   sortDirection?: ('asc' | 'desc')[];
+  totalAmount?: number;
 }
 
 export const DynamicTable: React.FC<DynamicTableProps> = ({
@@ -31,6 +32,7 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
   onSortChange,
   sortBy,
   sortDirection,
+  totalAmount,
 }) => {
   const handleSort = (accessor: string) => {
     if (onSortChange) {
@@ -117,6 +119,23 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
           </table>
         </div>
       </div>
+      {totalAmount && (
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-white/[0.05]">
+          <div className="flex items-center justify-end">
+            <span
+              className={`text-lg font-medium text-right ${
+                totalAmount < 0 ? 'text-contai-red' : 'text-contai-green'
+              }`}
+            >
+              Total:{' '}
+              {totalAmount.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              })}
+            </span>
+          </div>
+        </div>
+      )}
       {page && (
         <div className="px-6 py-4 border-t border-gray-200 dark:border-white/[0.05]">
           <div className="flex items-center justify-between">

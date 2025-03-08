@@ -63,4 +63,5 @@ export interface GetEntriesResponse {
   total: number;
   page: number;
   items_per_page: number;
+  total_amount: number;
 }

@@ -362,6 +362,7 @@ export const ListEntries = () => {
               onSortChange={handleSortChange}
               sortBy={sortBy}
               sortDirection={sortDirection}
+              totalAmount={data?.total_amount}
             />
           )}
         </div>
