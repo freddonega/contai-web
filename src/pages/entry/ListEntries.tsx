@@ -285,6 +285,7 @@ export const ListEntries = () => {
                       target: { value },
                     } as React.ChangeEvent<HTMLSelectElement>);
                   }}
+                  value={categoryId}
                 />
 
                 <Select
@@ -305,6 +306,7 @@ export const ListEntries = () => {
                       target: { value },
                     } as React.ChangeEvent<HTMLSelectElement>);
                   }}
+                  value={paymentTypeId}
                 />
 
                 <Input
