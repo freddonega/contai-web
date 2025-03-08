@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   useQuery,
@@ -10,13 +10,17 @@ import { fetchEntries, deleteEntry } from '@/requests/entryRequests';
 import { GetEntriesResponse } from '@/types/entry';
 import { useDebounce } from '@/utils/useDebounce';
 import { DynamicTable } from '@/components/DynamicTable';
-import { SearchInput } from '@/components/SearchInput';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { FaEye, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
+import { Select } from '@/components/Select';
+import { Input } from '@/components/Input';
+import { fetchCategories } from '@/requests/categoryRequests';
+import { SelectSearch } from '@/components/SelectSearch';
+import { fetchPaymentTypes } from '@/requests/paymentTypeRequests';
 
 export const ListEntries = () => {
   const [search, setSearch] = useState('');
@@ -26,6 +30,13 @@ export const ListEntries = () => {
     'desc',
     'desc',
   ]);
+  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [categoryType, setCategoryType] = useState<string | null>(null);
+  const [paymentTypeId, setPaymentTypeId] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<{ from: string; to: string }>({
+    from: '',
+    to: '',
+  });
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedEntryId, setSelectedEntryId] = useState<
     string | number | null
@@ -34,19 +45,75 @@ export const ListEntries = () => {
   const debouncedSearch = useDebounce(search, 500);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [categories, setCategories] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [paymentTypes, setPaymentTypes] = useState<
+    { value: string; label: string }[]
+  >([]);
+
+  const { data: categoriesData } = useQuery({
+    queryKey: ['categories', debouncedSearch],
+    queryFn: () =>
+      fetchCategories({
+        search: debouncedSearch,
+      }),
+  });
+
+  const { data: paymentTypesData } = useQuery({
+    queryKey: ['paymentTypes', debouncedSearch],
+    queryFn: () =>
+      fetchPaymentTypes({
+        search: debouncedSearch,
+      }),
+  });
+
+  useEffect(() => {
+    if (categoriesData) {
+      const categoryOptions = categoriesData.categories.map(category => ({
+        value: category.id.toString(),
+        label: category.name,
+      }));
+      setCategories(categoryOptions);
+    }
+  }, [categoriesData]);
+
+  useEffect(() => {
+    if (paymentTypesData) {
+      const paymentTypeOptions = paymentTypesData.map(paymentType => ({
+        value: paymentType.id.toString(),
+        label: paymentType.name,
+      }));
+      setPaymentTypes(paymentTypeOptions);
+    }
+  }, [paymentTypesData]);
 
   const { data, isLoading } = useQuery<GetEntriesResponse>({
     queryKey: [
       'entries',
-      { search: debouncedSearch, page, itemsPerPage, sortBy, sortDirection },
+      {
+        page,
+        itemsPerPage,
+        sortBy,
+        sortDirection,
+        ...(categoryId && { categoryId }),
+        ...(categoryType && { categoryType }),
+        ...(paymentTypeId && { paymentTypeId }),
+        ...(dateRange.from && { from: dateRange.from }),
+        ...(dateRange.to && { to: dateRange.to }),
+      },
     ],
     queryFn: () =>
       fetchEntries({
-        search: debouncedSearch,
         page,
         items_per_page: itemsPerPage,
         sort_by: sortBy,
         sort_order: sortDirection,
+        ...(categoryId && { category_id: categoryId }),
+        ...(categoryType && { category_type: categoryType }),
+        ...(paymentTypeId && { payment_type_id: paymentTypeId }),
+        ...(dateRange.from && { from: dateRange.from }),
+        ...(dateRange.to && { to: dateRange.to }),
       }),
   } as UseQueryOptions<GetEntriesResponse, Error, GetEntriesResponse, readonly unknown[]>);
 
@@ -69,8 +136,27 @@ export const ListEntries = () => {
     },
   });
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
+  const handleCategoryIdChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCategoryId(e.target.value);
+    setPage(1);
+  };
+
+  const handleCategoryTypeChange = (
+    e: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    setCategoryType(e.target.value);
+    setPage(1);
+  };
+
+  const handlePaymentTypeIdChange = (
+    e: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    setPaymentTypeId(e.target.value);
+    setPage(1);
+  };
+
+  const handleDateRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateRange({ ...dateRange, [e.target.name]: e.target.value });
     setPage(1);
   };
 
@@ -110,7 +196,6 @@ export const ListEntries = () => {
       header: 'Período',
       accessor: 'period',
       width: '200px',
-      sortable: true,
       Cell: ({ row }: { row: any }) => (
         <span>
           {new Date(row.period + '-02').toLocaleDateString('pt-BR', {
@@ -137,14 +222,13 @@ export const ListEntries = () => {
       header: 'Categoria',
       accessor: 'category.name',
       width: '150px',
-      sortable: true,
       Cell: ({ row }: { row: any }) => row.category.name,
     },
     {
       header: 'Type',
       accessor: 'category.type',
       width: '150px',
-      sortable: true,
+
       Cell: ({ row }: { row: any }) =>
         row.category.type === 'expense' ? (
           <span className="inline-flex items-center px-2.5 py-0.5 justify-center gap-1 rounded-full font-medium text-theme-xs bg-red-50 text-error-600 dark:bg-red-500/15 dark:text-error-500">
@@ -191,14 +275,50 @@ export const ListEntries = () => {
                   Movimentações
                 </h3>
               </div>
-              <div className="flex gap-2 flex-wrap sm:flex-nowrap">
-                <button
-                  onClick={handleCreateEntry}
-                  className="bg-contai-lightBlue text-white px-4 py-2 rounded flex-grow sm:w-auto"
-                >
-                  Nova Entrada
-                </button>
-                <SearchInput value={search} onChange={handleSearchChange} />
+              <div className="grid lg:grid-cols-5 gap-2">
+                <SelectSearch
+                  placeholder="Categoria"
+                  options={[{ value: '', label: 'Cancelar' }, ...categories]}
+                  onSearchChange={e => setSearch(e.target.value)}
+                  onChange={value => {
+                    handleCategoryIdChange({
+                      target: { value },
+                    } as React.ChangeEvent<HTMLSelectElement>);
+                  }}
+                />
+
+                <Select
+                  options={[
+                    { value: '', label: 'Tipo de Categoria' },
+                    { value: 'income', label: 'Receita' },
+                    { value: 'expense', label: 'Despesa' },
+                  ]}
+                  onChange={handleCategoryTypeChange}
+                />
+
+                <SelectSearch
+                  placeholder="Tipo de Pagamento"
+                  options={[{ value: '', label: 'Cancelar' }, ...paymentTypes]}
+                  onSearchChange={e => setSearch(e.target.value)}
+                  onChange={value => {
+                    handlePaymentTypeIdChange({
+                      target: { value },
+                    } as React.ChangeEvent<HTMLSelectElement>);
+                  }}
+                />
+
+                <Input
+                  type="month"
+                  name="from"
+                  value={dateRange.from}
+                  onChange={handleDateRangeChange}
+                />
+                <Input
+                  type="month"
+                  name="to"
+                  value={dateRange.to}
+                  onChange={handleDateRangeChange}
+                />
               </div>
             </div>
           </div>
