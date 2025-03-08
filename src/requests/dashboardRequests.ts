@@ -4,9 +4,10 @@ import {
   DashboardData,
   MonthlyTotalsResponse,
   CategoryComparisonResponse,
-  SurvivalTimeResponse, // Add this import
-  IncomeExpenseRatioResponse, // Add this import
-  TotalBalanceResponse, // Add this import
+  SurvivalTimeResponse,
+  IncomeExpenseRatioResponse,
+  TotalBalanceResponse,
+  MonthlyTotalsByTypeResponse, // Add this import
 } from '@/types/dashboard';
 
 export const fetchDashboardData = async (
@@ -49,5 +50,13 @@ export const fetchIncomeExpenseRatio =
 
 export const fetchTotalBalance = async (): Promise<TotalBalanceResponse> => {
   const response = await api.get('/dashboard/balance/total');
+  return response.data;
+};
+
+export const fetchMonthlyTotalsByType = async (
+  monthYear: string,
+): Promise<MonthlyTotalsByTypeResponse[]> => {
+  const [year, month] = monthYear.split('-');
+  const response = await api.get(`/dashboard/${year}/${month}/totals_by_type`);
   return response.data;
 };

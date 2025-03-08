@@ -38,7 +38,7 @@ export const ButtonSelector = forwardRef<HTMLDivElement, ButtonSelectorProps>(
             {label}
           </label>
         )}
-        <div className="flex gap-2 bg-black/50 p-3 rounded-lg">
+        <div className="grid lg:grid-cols-2 gap-2 bg-black/50 p-2 rounded-lg">
           {options.map(option => {
             const isSelected = multiple
               ? Array.isArray(value) && value.includes(option.value)

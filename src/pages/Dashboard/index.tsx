@@ -8,6 +8,7 @@ import {
   fetchSurvivalTime,
   fetchIncomeExpenseRatio,
   fetchTotalBalance,
+  fetchMonthlyTotalsByType,
 } from '@/requests/dashboardRequests';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -18,6 +19,8 @@ import { MonthlyCategoryChart } from '@/components/MonthlyCategoryChart';
 import { CurrentBalances } from '@/components/CurrentBalances';
 import { CurrentMonthCategoryBalance } from '@/components/CurrentMonthCategoryBalance';
 import { CurrentRatioAndSurvival } from '@/components/CurrentRatioAndSurvival';
+import { set } from 'react-hook-form';
+import { PaymentTypeCart } from '@/components/PaymentTypeCart';
 
 export const Dashboard = () => {
   const [year, setYear] = useState(new Date().getFullYear().toString());
@@ -59,6 +62,12 @@ export const Dashboard = () => {
     queryFn: () => fetchTotalBalance(),
   });
 
+  const { data: monthlyTotalsByType, isLoading: monthlyTotalsByTypeLoading } =
+    useQuery({
+      queryKey: ['monthlyTotalsByType', monthYear],
+      queryFn: () => fetchMonthlyTotalsByType(monthYear),
+    });
+
   const formattedData = data?.map(item => {
     const monthDate = new Date(item.month + '-02');
     const monthName = monthDate
@@ -73,6 +82,16 @@ export const Dashboard = () => {
 
   return (
     <div className="grid grid-cols-12 gap-4 md:gap-6">
+      <div className="flex gap-2 col-span-12  sm:flex-grow sm:w-auto">
+        <Input
+          defaultValue={monthYear}
+          type="month"
+          onChange={e => {
+            setMonthYear(e.target.value);
+            setYear(e.target.value.slice(0, 4));
+          }}
+        />
+      </div>
       <div className="col-span-12 space-y-6 xl:col-span-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
           <CurrentBalances
@@ -98,18 +117,6 @@ export const Dashboard = () => {
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                       Balanço Anual - {year}
                     </h3>
-                  </div>
-                  <div className="flex gap-2 sm:flex-grow sm:w-auto">
-                    <Select
-                      options={Array.from({ length: 5 }, (_, i) => {
-                        const year = new Date().getFullYear() - i;
-                        return {
-                          label: year.toString(),
-                          value: year.toString(),
-                        };
-                      })}
-                      onChange={e => setYear(e.target.value)}
-                    />
                   </div>
                 </div>
                 <div className="relative p-10">
@@ -139,13 +146,6 @@ export const Dashboard = () => {
                       Balanço Mensal por Categoria
                     </h3>
                   </div>
-                  <div className="flex gap-2  sm:flex-grow sm:w-auto">
-                    <Input
-                      defaultValue={monthYear}
-                      type="month"
-                      onChange={e => setMonthYear(e.target.value)}
-                    />
-                  </div>
                 </div>
                 <div className="relative p-10">
                   {montlyIsLoading ? (
@@ -162,6 +162,13 @@ export const Dashboard = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div className="col-span-12 grid lg:grid-cols-4 gap-6">
+        {monthlyTotalsByType?.map((paymentType, key) => (
+          <div key={key}>
+            <PaymentTypeCart {...paymentType} />
+          </div>
+        ))}
       </div>
     </div>
   );

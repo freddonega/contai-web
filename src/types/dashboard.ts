@@ -47,3 +47,8 @@ export interface IncomeExpenseRatioResponse {
 export interface TotalBalanceResponse {
   totalBalance: number;
 }
+
+export interface MonthlyTotalsByTypeResponse {
+  payment_type_name: string;
+  total: number;
+}
