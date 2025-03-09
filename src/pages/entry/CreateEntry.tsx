@@ -15,50 +15,12 @@ import Checkbox from '@/components/Checkbox';
 import { ButtonSelector } from '@/components/ButtonSelector';
 import { fetchPaymentTypes } from '@/requests/paymentTypeRequests';
 
-// Define the validation schema
-const schema = yup.object().shape({
-  amount: yup
-    .number()
-    .required('O valor da movimentação é obrigatório')
-    .min(0, 'O valor deve ser maior que 0'),
-  description: yup.string(),
-  category_id: yup.number().required('Categoria é obrigatória'),
-  period: yup.string().required('Período é obrigatório'),
-  recurring: yup.boolean(),
-  frequency: yup.string().when('recurring', {
-    is: true,
-    then: schema => schema.required('Frequência é obrigatória'),
-  }),
-  payment_type_id: yup.number().when('category_type', {
-    is: 'expense',
-    then: schema => schema.required('Tipo de pagamento é obrigatório'),
-  }),
-});
-
 export const CreateEntry = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [search, setSearch] = useState('');
   const [paymentTypeOptions, setPaymentTypeOptions] = useState([]);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
-    control,
-  } = useForm({
-    resolver: yupResolver(schema),
-    defaultValues: {
-      period: new Date().toISOString().split('T')[0].slice(0, 7),
-      recurring: false,
-    },
-  });
-
-  const watchCategory = watch('category_id');
-  const recurring = watch('recurring');
 
   const { data: entry, isLoading: isFetchingEntry } = useQuery({
     queryKey: ['entry', id],
@@ -81,6 +43,10 @@ export const CreateEntry = () => {
       }),
   });
 
+  const context = {
+    categories: categories?.categories,
+  };
+
   const { data: paymentTypes } = useQuery({
     queryKey: ['paymentTypes'],
     queryFn: () =>
@@ -89,6 +55,50 @@ export const CreateEntry = () => {
         items_per_page: 1000,
       }),
   });
+
+  // Define the validation schema
+  const schema = yup.object().shape({
+    amount: yup
+      .number()
+      .required('O valor da movimentação é obrigatório')
+      .min(0, 'O valor deve ser maior que 0'),
+    description: yup.string(),
+    category_id: yup.number().required('Categoria é obrigatória'),
+    period: yup.string().required('Período é obrigatório'),
+    recurring: yup.boolean(),
+    frequency: yup.string().when('recurring', {
+      is: true,
+      then: schema => schema.required('Frequência é obrigatória'),
+    }),
+    payment_type_id: yup.number().when('category_id', {
+      is: (categoryId: number) => {
+        const category = context.categories?.find(
+          (cat: any) => cat.id === categoryId,
+        );
+        return category?.type === 'expense';
+      },
+      then: schema => schema.required('Tipo de pagamento é obrigatório'),
+      otherwise: schema => schema.notRequired(),
+    }),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    control,
+  } = useForm({
+    resolver: yupResolver(schema, { context }),
+    defaultValues: {
+      period: new Date().toISOString().split('T')[0].slice(0, 7),
+      recurring: false,
+    },
+  });
+
+  const watchCategory = watch('category_id');
+  const recurring = watch('recurring');
 
   useEffect(() => {
     if (categories) {

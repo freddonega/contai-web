@@ -8,6 +8,10 @@ export interface RecurringEntry {
     name: string;
     type: string;
   };
+  payment_type: {
+    id: number;
+    name: string;
+  };
   next_run: string;
 }
 
@@ -23,5 +27,5 @@ export interface GetRecurringEntriesParams {
   page?: number;
   items_per_page?: number;
   sort_by?: string;
-  sort_order?: "asc" | "desc";
+  sort_order?: 'asc' | 'desc';
 }

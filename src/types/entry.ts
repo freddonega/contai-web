@@ -19,6 +19,7 @@ export interface CreateEntryData {
   amount: number;
   description?: string;
   category_id: number;
+  payment_type_id?: number;
   period: string;
   recurring?: boolean;
   frequency?: string;
@@ -30,6 +31,7 @@ export interface UpdateEntryData {
   amount: number;
   description?: string;
   category_id: number;
+  payment_type_id?: number;
   period: string;
   recurring?: boolean;
   frequency?: string;
