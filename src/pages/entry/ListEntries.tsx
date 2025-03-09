@@ -57,6 +57,8 @@ export const ListEntries = () => {
     queryFn: () =>
       fetchCategories({
         search: debouncedSearch,
+        page: 1,
+        items_per_page: 1000,
       }),
   });
 
@@ -65,6 +67,8 @@ export const ListEntries = () => {
     queryFn: () =>
       fetchPaymentTypes({
         search: debouncedSearch,
+        page: 1,
+        items_per_page: 1000,
       }),
   });
 
