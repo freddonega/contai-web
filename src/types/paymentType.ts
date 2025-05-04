@@ -1,5 +1,5 @@
 export interface PaymentType {
-  id: number;
+  id: string;
   name: string;
 }
 

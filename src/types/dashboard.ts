@@ -5,7 +5,7 @@ export interface DashboardData {
 }
 
 export interface MonthlyTotal {
-  category_id: number;
+  category_id: string;
   category_name: string;
   type: 'income' | 'expense';
   total: number;

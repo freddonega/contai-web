@@ -53,10 +53,10 @@ export const CreateRecurringEntry = () => {
       .required('O valor da movimentação é obrigatório')
       .min(0, 'O valor deve ser maior que 0'),
     description: yup.string(),
-    category_id: yup.number().required('Categoria é obrigatória'),
+    category_id: yup.string().required('Categoria é obrigatória'),
     frequency: yup.string().required('Frequência é obrigatória'),
     next_run: yup.string().required('Próxima execução é obrigatória'),
-    payment_type_id: yup.number().when('category_id', {
+    payment_type_id: yup.string().when('category_id', {
       is: (categoryId: number) => {
         const category = context.categories?.find(
           (cat: any) => cat.id === categoryId,
@@ -171,7 +171,7 @@ export const CreateRecurringEntry = () => {
 
   const onSubmit = (data: Omit<RecurringEntry, 'id'>) => {
     if (id) {
-      updateMutation.mutate({ id: Number(id), ...data });
+      updateMutation.mutate({ id, ...data });
     } else {
       createMutation.mutate(data);
     }
@@ -218,7 +218,7 @@ export const CreateRecurringEntry = () => {
               options={categoryOptions}
               onSearchChange={e => setSearch(e.target.value)}
               onChange={value => {
-                setValue('category_id', Number(value));
+                setValue('category_id', value);
               }}
               value={watchCategory?.toString()}
               error={errors.category_id?.message}
@@ -230,7 +230,7 @@ export const CreateRecurringEntry = () => {
                 label="Tipo de pagamento"
                 options={paymentTypeOptions}
                 value={watchPaymentTypeId}
-                onChange={value => setValue('payment_type_id', Number(value))}
+                onChange={value => setValue('payment_type_id', value.toString())}
                 error={errors.payment_type_id?.message}
               />
             )}

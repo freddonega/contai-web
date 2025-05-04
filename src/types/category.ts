@@ -17,7 +17,7 @@ export interface GetCategoriesParams {
 }
 
 export interface CategoryResponse {
-  id: number;
+  id: string;
   name: string;
   type: string;
 }

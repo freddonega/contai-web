@@ -1,15 +1,15 @@
 export interface RecurringEntry {
-  id: number;
+  id: string;
   amount: number;
   description: string;
   frequency: string;
   category: {
-    id: number;
+    id: string;
     name: string;
     type: string;
   };
   payment_type: {
-    id: number;
+    id: string;
     name: string;
   };
   next_run: string;

@@ -63,14 +63,14 @@ export const CreateEntry = () => {
       .required('O valor da movimentação é obrigatório')
       .min(0, 'O valor deve ser maior que 0'),
     description: yup.string(),
-    category_id: yup.number().required('Categoria é obrigatória'),
+    category_id: yup.string().required('Categoria é obrigatória'),
     period: yup.string().required('Período é obrigatório'),
     recurring: yup.boolean(),
     frequency: yup.string().when('recurring', {
       is: true,
       then: schema => schema.required('Frequência é obrigatória'),
     }),
-    payment_type_id: yup.number().when('category_id', {
+    payment_type_id: yup.string().when('category_id', {
       is: (categoryId: number) => {
         const category = context.categories?.find(
           (cat: any) => cat.id === categoryId,
@@ -210,7 +210,7 @@ export const CreateEntry = () => {
       data.next_run = nextRunDate.toISOString().split('T')[0];
     }
     if (id) {
-      updateMutation.mutate({ id: Number(id), ...data });
+      updateMutation.mutate({ id, ...data });
     } else {
       createMutation.mutate(data);
     }
@@ -256,7 +256,7 @@ export const CreateEntry = () => {
               onSearchChange={e => setSearch(e.target.value)}
               onChange={value => {
                 console.log(value);
-                setValue('category_id', Number(value));
+                setValue('category_id', value);
               }}
               value={watchCategory?.toString()}
               error={errors.category_id?.message}
@@ -267,7 +267,7 @@ export const CreateEntry = () => {
                 label="Tipo de pagamento"
                 options={paymentTypeOptions}
                 value={watch('payment_type_id')}
-                onChange={value => setValue('payment_type_id', Number(value))}
+                onChange={value => setValue('payment_type_id', value.toString())}
                 error={errors.payment_type_id?.message}
               />
             )}

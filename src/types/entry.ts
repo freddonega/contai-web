@@ -1,25 +1,25 @@
 export interface Entry {
-  id: number;
+  id: string;
   amount: number;
   description?: string;
   category: {
-    id: number;
+    id: string;
     name: string;
     type: string;
   };
   payment_type?: {
-    id: number;
+    id: string;
     name: string;
   };
-  user_id: number;
+  user_id: string;
   period: string;
 }
 
 export interface CreateEntryData {
   amount: number;
   description?: string;
-  category_id: number;
-  payment_type_id?: number;
+  category_id: string;
+  payment_type_id?: string;
   period: string;
   recurring?: boolean;
   frequency?: string;
@@ -27,11 +27,11 @@ export interface CreateEntryData {
 }
 
 export interface UpdateEntryData {
-  id: number;
+  id: string;
   amount: number;
   description?: string;
-  category_id: number;
-  payment_type_id?: number;
+  category_id: string;
+  payment_type_id?: string;
   period: string;
   recurring?: boolean;
   frequency?: string;
@@ -52,11 +52,11 @@ export interface GetEntriesParams {
 }
 
 export interface EntryResponse {
-  id: number;
+  id: string;
   amount: number;
   description?: string;
-  category_id: number;
-  user_id: number;
+  category_id: string;
+  user_id: string;
   period: string;
 }
 

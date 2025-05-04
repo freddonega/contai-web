@@ -75,7 +75,7 @@ export const CreatePaymentType = () => {
 
   const onSubmit = (data: Omit<PaymentType, 'id'>) => {
     if (id) {
-      updateMutation.mutate({ id: Number(id), ...data });
+      updateMutation.mutate({ id, ...data });
     } else {
       createMutation.mutate(data);
     }
