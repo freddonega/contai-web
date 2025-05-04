@@ -123,23 +123,17 @@ export const CreateEntry = () => {
       }
     }
     if (paymentTypes) {
-      if (paymentTypes.length === 0) {
-        toast.error(
-          'Você precisa criar um tipo de pagamento antes de criar uma movimentação',
-        );
+      if (paymentTypes.payment_types.length === 0) {
+        toast.warning('Você precisa cadastrar uma forma de pagamento primeiro');
         navigate('/paymentTypes');
+        return;
       }
-    }
-  }, []);
 
-  useEffect(() => {
-    if (paymentTypes) {
-      setPaymentTypeOptions(
-        paymentTypes.map(paymentType => ({
-          value: paymentType.id,
-          label: paymentType.name,
-        })),
-      );
+      const paymentTypeOptions = paymentTypes.payment_types.map(paymentType => ({
+        value: paymentType.id.toString(),
+        label: paymentType.name,
+      }));
+      setPaymentTypeOptions(paymentTypeOptions);
     }
   }, [paymentTypes]);
 

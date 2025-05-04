@@ -4,32 +4,31 @@ import {
   useQuery,
   useQueryClient,
   useMutation,
-  UseQueryOptions,
 } from '@tanstack/react-query';
-import { fetchEntries, deleteEntry } from '@/requests/entryRequests';
-import { GetEntriesResponse } from '@/types/entry';
+import {
+  fetchEntries,
+  deleteEntry,
+} from '@/requests/entryRequests';
+import { GetEntriesResponse, Entry } from '@/types/entry';
 import { useDebounce } from '@/utils/useDebounce';
 import { DynamicTable } from '@/components/DynamicTable';
+import { SearchInput } from '@/components/SearchInput';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { FaEye, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
+import { fetchCategories } from '@/requests/categoryRequests';
+import { fetchPaymentTypes } from '@/requests/paymentTypeRequests';
 import { Select } from '@/components/Select';
 import { Input } from '@/components/Input';
-import { fetchCategories } from '@/requests/categoryRequests';
-import { SelectSearch } from '@/components/SelectSearch';
-import { fetchPaymentTypes } from '@/requests/paymentTypeRequests';
 
 export const ListEntries = () => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState<string[]>(['period', 'category.type']);
-  const [sortDirection, setSortDirection] = useState<('asc' | 'desc')[]>([
-    'desc',
-    'desc',
-  ]);
+  const [sortDirection, setSortDirection] = useState<('asc' | 'desc')[]>(['desc', 'desc']);
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [categoryType, setCategoryType] = useState<string | null>(null);
   const [paymentTypeId, setPaymentTypeId] = useState<string | null>(null);
@@ -38,19 +37,13 @@ export const ListEntries = () => {
     to: '',
   });
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [selectedEntryId, setSelectedEntryId] = useState<
-    string | number | null
-  >(null);
+  const [selectedEntryId, setSelectedEntryId] = useState<string | number | null>(null);
   const itemsPerPage = 10;
   const debouncedSearch = useDebounce(search, 500);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [categories, setCategories] = useState<
-    { value: string; label: string }[]
-  >([]);
-  const [paymentTypes, setPaymentTypes] = useState<
-    { value: string; label: string }[]
-  >([]);
+  const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
+  const [paymentTypes, setPaymentTypes] = useState<{ value: string; label: string }[]>([]);
 
   const { data: categoriesData } = useQuery({
     queryKey: ['categories', debouncedSearch],
@@ -96,38 +89,39 @@ export const ListEntries = () => {
     queryKey: [
       'entries',
       {
+        search: debouncedSearch,
         page,
         itemsPerPage,
         sortBy,
         sortDirection,
-        ...(categoryId && { categoryId }),
-        ...(categoryType && { categoryType }),
-        ...(paymentTypeId && { paymentTypeId }),
-        ...(dateRange.from && { from: dateRange.from }),
-        ...(dateRange.to && { to: dateRange.to }),
+        categoryId,
+        categoryType,
+        paymentTypeId,
+        from: dateRange.from,
+        to: dateRange.to,
       },
     ],
     queryFn: () =>
       fetchEntries({
+        search: debouncedSearch,
         page,
         items_per_page: itemsPerPage,
         sort_by: sortBy,
         sort_order: sortDirection,
-        ...(categoryId && { category_id: categoryId }),
-        ...(categoryType && { category_type: categoryType }),
-        ...(paymentTypeId && { payment_type_id: paymentTypeId }),
-        ...(dateRange.from && { from: dateRange.from }),
-        ...(dateRange.to && { to: dateRange.to }),
+        category_id: categoryId,
+        category_type: categoryType,
+        payment_type_id: paymentTypeId,
+        from: dateRange.from,
+        to: dateRange.to,
       }),
-  } as UseQueryOptions<GetEntriesResponse, Error, GetEntriesResponse, readonly unknown[]>);
+  });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string | number) => deleteEntry(id.toString()),
     onSuccess: () => {
       setIsConfirmModalOpen(false);
       setSelectedEntryId(null);
-      toast.success('Entrada deletada com sucesso');
-      // Refetch entries after deletion
+      toast.success('Lançamento deletado com sucesso');
       queryClient.invalidateQueries({ queryKey: ['entries'] });
     },
     onError: (error: unknown) => {
@@ -140,32 +134,21 @@ export const ListEntries = () => {
     },
   });
 
-  const handleCategoryIdChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCategoryId(e.target.value);
-    setPage(1);
-  };
-
-  const handleCategoryTypeChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    setCategoryType(e.target.value);
-    setPage(1);
-  };
-
-  const handlePaymentTypeIdChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    setPaymentTypeId(e.target.value);
-    setPage(1);
-  };
-
-  const handleDateRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDateRange({ ...dateRange, [e.target.name]: e.target.value });
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
     setPage(1);
   };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+  };
+
+  const handleSortChange = (
+    accessors: string[],
+    directions: ('asc' | 'desc')[],
+  ) => {
+    setSortBy(accessors);
+    setSortDirection(directions);
   };
 
   const handleDelete = (id: string | number) => {
@@ -187,33 +170,19 @@ export const ListEntries = () => {
     navigate('/entries/create');
   };
 
-  const handleSortChange = (
-    accessors: string[],
-    directions: ('asc' | 'desc')[],
-  ) => {
-    setSortBy(accessors);
-    setSortDirection(directions);
-  };
-
   const columns = [
     {
-      header: 'Período',
-      accessor: 'period',
-      width: '200px',
-      Cell: ({ row }: { row: any }) => (
-        <span>
-          {new Date(row.period + '-02').toLocaleDateString('pt-BR', {
-            year: 'numeric',
-            month: 'long',
-          })}
-        </span>
-      ),
+      header: 'Descrição',
+      accessor: 'description',
+      width: '250px',
+      sortable: true,
     },
     {
       header: 'Valor',
       accessor: 'amount',
       width: '150px',
-      Cell: ({ row }: { row: any }) => (
+      sortable: true,
+      Cell: ({ row }: { row: Entry }) => (
         <span className={row.category.type === 'expense' ? 'text-red-500' : ''}>
           {new Intl.NumberFormat('pt-BR', {
             style: 'currency',
@@ -223,17 +192,29 @@ export const ListEntries = () => {
       ),
     },
     {
+      header: 'Data',
+      accessor: 'period',
+      width: '150px',
+      sortable: true,
+      Cell: ({ row }: { row: Entry }) => {
+        const date = new Date(row.period);
+        date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+        return <span>{date.toLocaleDateString().toString()}</span>;
+      },
+    },
+    {
       header: 'Categoria',
       accessor: 'category.name',
       width: '150px',
-      Cell: ({ row }: { row: any }) => row.category.name,
+      sortable: true,
+      Cell: ({ row }: { row: Entry }) => <span>{row.category.name}</span>,
     },
     {
-      header: 'Type',
+      header: 'Tipo',
       accessor: 'category.type',
       width: '150px',
-
-      Cell: ({ row }: { row: any }) =>
+      sortable: true,
+      Cell: ({ row }: { row: Entry }) =>
         row.category.type === 'expense' ? (
           <span className="inline-flex items-center px-2.5 py-0.5 justify-center gap-1 rounded-full font-medium text-theme-xs bg-red-50 text-error-600 dark:bg-red-500/15 dark:text-error-500">
             Despesa
@@ -244,12 +225,11 @@ export const ListEntries = () => {
           </span>
         ),
     },
-    { header: 'Descrição', accessor: 'description' },
     {
       header: 'Ações',
       accessor: 'actions',
       width: '100px',
-      Cell: ({ row }: { row: any }) => (
+      Cell: ({ row }: { row: Entry }) => (
         <div className="flex space-x-2">
           <button
             onClick={() => handleView(row.id)}
@@ -276,54 +256,66 @@ export const ListEntries = () => {
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                  Movimentações
+                  Lançamentos
                 </h3>
               </div>
-              <div className="grid lg:grid-cols-5 gap-2">
-                <SelectSearch
-                  placeholder="Categoria"
-                  options={[{ value: '', label: 'Cancelar' }, ...categories]}
-                  onSearchChange={e => setSearch(e.target.value)}
-                  onChange={value => {
-                    handleCategoryIdChange({
-                      target: { value },
-                    } as React.ChangeEvent<HTMLSelectElement>);
-                  }}
-                  value={categoryId}
-                />
-
-                <Select
-                  options={[
-                    { value: '', label: 'Tipo de Categoria' },
-                    { value: 'income', label: 'Receita' },
-                    { value: 'expense', label: 'Despesa' },
-                  ]}
-                  onChange={handleCategoryTypeChange}
-                />
-
-                <SelectSearch
-                  placeholder="Tipo de Pagamento"
-                  options={[{ value: '', label: 'Cancelar' }, ...paymentTypes]}
-                  onSearchChange={e => setSearch(e.target.value)}
-                  onChange={value => {
-                    handlePaymentTypeIdChange({
-                      target: { value },
-                    } as React.ChangeEvent<HTMLSelectElement>);
-                  }}
-                  value={paymentTypeId}
-                />
-
+              <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+                <button
+                  onClick={handleCreateEntry}
+                  className="bg-contai-lightBlue text-white px-4 py-2 rounded flex-grow sm:w-auto"
+                >
+                  Novo Lançamento
+                </button>
+                <SearchInput value={search} onChange={handleSearchChange} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+              <Select
+                label="Categoria"
+                options={categories}
+                value={categoryId}
+                onChange={e => {
+                  setCategoryId(e.target.value);
+                  setPage(1);
+                }}
+              />
+              <Select
+                label="Tipo"
+                options={[
+                  { value: 'income', label: 'Receita' },
+                  { value: 'expense', label: 'Despesa' },
+                ]}
+                value={categoryType}
+                onChange={e => {
+                  setCategoryType(e.target.value);
+                  setPage(1);
+                }}
+              />
+              <Select
+                label="Forma de Pagamento"
+                options={paymentTypes}
+                value={paymentTypeId}
+                onChange={e => {
+                  setPaymentTypeId(e.target.value);
+                  setPage(1);
+                }}
+              />
+              <div className="flex gap-2">
                 <Input
-                  type="month"
-                  name="from"
+                  type="date"
                   value={dateRange.from}
-                  onChange={handleDateRangeChange}
+                  onChange={e => {
+                    setDateRange(prev => ({ ...prev, from: e.target.value }));
+                    setPage(1);
+                  }}
                 />
                 <Input
-                  type="month"
-                  name="to"
+                  type="date"
                   value={dateRange.to}
-                  onChange={handleDateRangeChange}
+                  onChange={e => {
+                    setDateRange(prev => ({ ...prev, to: e.target.value }));
+                    setPage(1);
+                  }}
                 />
               </div>
             </div>
@@ -340,35 +332,33 @@ export const ListEntries = () => {
           ) : (
             <DynamicTable
               columns={columns}
-              data={
-                data?.entries.map(entry => ({
-                  ...entry,
-                  actions: (
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleView(entry.id)}
-                        className="text-blue-500 hover:underline"
-                      >
-                        <FaEye className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(entry.id)}
-                        className="text-red-500 hover:underline"
-                      >
-                        <FaTrash className="w-5 h-5" />
-                      </button>
-                    </div>
-                  ),
-                })) || []
-              }
+              data={data?.entries?.map(entry => ({
+                ...entry,
+                actions: (
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleView(entry.id)}
+                      className="text-blue-500 hover:underline"
+                    >
+                      <FaEye className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(entry.id)}
+                      className="text-red-500 hover:underline"
+                    >
+                      <FaTrash className="w-5 h-5" />
+                    </button>
+                  </div>
+                ),
+              })) || []}
               page={page}
               itemsPerPage={itemsPerPage}
               totalItems={data?.total || 0}
+              totalAmount={data?.total_amount || 0}
               onPageChange={handlePageChange}
               onSortChange={handleSortChange}
               sortBy={sortBy}
               sortDirection={sortDirection}
-              totalAmount={data?.total_amount}
             />
           )}
         </div>
@@ -377,7 +367,7 @@ export const ListEntries = () => {
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={confirmDelete}
-        message="Tem certeza que deseja deletar esta entrada?"
+        message="Tem certeza que deseja deletar este lançamento?"
       />
     </div>
   );

@@ -237,7 +237,8 @@ export const ListRecurringEntries = () => {
             <DynamicTable
               columns={columns}
               data={
-                data?.entries.map(entry => ({
+                data?.recurring_entries
+                .map(entry => ({
                   ...entry,
                   actions: (
                     <div className="flex space-x-2">

@@ -16,7 +16,7 @@ export interface RecurringEntry {
 }
 
 export interface GetRecurringEntriesResponse {
-  entries: RecurringEntry[];
+  recurring_entries: RecurringEntry[];
   total: number;
   page: number;
   items_per_page: number;

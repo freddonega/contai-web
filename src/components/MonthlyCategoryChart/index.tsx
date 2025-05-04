@@ -7,6 +7,14 @@ interface ChartProps {
 }
 
 export const MonthlyCategoryChart = ({ data }: ChartProps) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[400px] text-gray-500 dark:text-gray-400">
+        Nenhum dado disponível para o período selecionado
+      </div>
+    );
+  }
+
   const option: ReactEChartsProps["option"] = {
     grid: {
       left: 0,

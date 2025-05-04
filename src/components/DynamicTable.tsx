@@ -100,21 +100,29 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {data.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {columns.map(column => (
-                    <td
-                      key={column.accessor}
-                      className="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400"
-                      style={{ width: column.width }}
-                    >
-                      {column.Cell
-                        ? column.Cell({ value: row[column.accessor], row })
-                        : row[column.accessor]}
-                    </td>
-                  ))}
+              {data.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    Nenhum registro encontrado
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                data.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {columns.map(column => (
+                      <td
+                        key={column.accessor}
+                        className="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400"
+                        style={{ width: column.width }}
+                      >
+                        {column.Cell
+                          ? column.Cell({ value: row[column.accessor], row })
+                          : row[column.accessor]}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

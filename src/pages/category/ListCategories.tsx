@@ -4,10 +4,12 @@ import {
   useQuery,
   useQueryClient,
   useMutation,
-  UseQueryOptions,
 } from '@tanstack/react-query';
-import { fetchCategories, deleteCategory } from '@/requests/categoryRequests';
-import { GetCategoriesResponse } from '@/types/category';
+import {
+  fetchCategories,
+  deleteCategory,
+} from '@/requests/categoryRequests';
+import { GetCategoriesResponse, CategoryResponse } from '@/types/category';
 import { useDebounce } from '@/utils/useDebounce';
 import { DynamicTable } from '@/components/DynamicTable';
 import { SearchInput } from '@/components/SearchInput';
@@ -21,22 +23,17 @@ import { AxiosError } from 'axios';
 export const ListCategories = () => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState<string[]>([]);
-  const [sortDirection, setSortDirection] = useState<('asc' | 'desc')[]>([]);
+  const [sortBy, setSortBy] = useState<string[]>(['name']);
+  const [sortDirection, setSortDirection] = useState<('asc' | 'desc')[]>(['asc']);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<
-    string | number | null
-  >(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | number | null>(null);
   const itemsPerPage = 10;
   const debouncedSearch = useDebounce(search, 500);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const { data, isLoading } = useQuery<GetCategoriesResponse>({
-    queryKey: [
-      'categories',
-      { search: debouncedSearch, page, itemsPerPage, sortBy, sortDirection },
-    ],
+    queryKey: ['categories', { search: debouncedSearch, page, itemsPerPage, sortBy, sortDirection }],
     queryFn: () =>
       fetchCategories({
         search: debouncedSearch,
@@ -45,7 +42,7 @@ export const ListCategories = () => {
         sort_by: sortBy,
         sort_order: sortDirection,
       }),
-  } as UseQueryOptions<GetCategoriesResponse, Error, GetCategoriesResponse, readonly unknown[]>);
+  });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string | number) => deleteCategory(id.toString()),
@@ -53,7 +50,6 @@ export const ListCategories = () => {
       setIsConfirmModalOpen(false);
       setSelectedCategoryId(null);
       toast.success('Categoria deletada com sucesso');
-      // Refetch categories after deletion
       queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
     onError: (error: unknown) => {
@@ -103,10 +99,16 @@ export const ListCategories = () => {
   };
 
   const columns = [
-    { header: 'Nome', accessor: 'name', width: '250px', sortable: true },
+    {
+      header: 'Nome',
+      accessor: 'name',
+      width: '200px',
+      sortable: true,
+    },
     {
       header: 'Tipo',
       accessor: 'type',
+      width: '150px',
       sortable: true,
       Cell: ({ value }: { value: string }) =>
         value === 'expense' ? (
@@ -123,7 +125,7 @@ export const ListCategories = () => {
       header: 'Ações',
       accessor: 'actions',
       width: '100px',
-      Cell: ({ row }: { row: any }) => (
+      Cell: ({ row }: { row: CategoryResponse }) => (
         <div className="flex space-x-2">
           <button
             onClick={() => handleView(row.id)}
@@ -156,7 +158,7 @@ export const ListCategories = () => {
               <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                 <button
                   onClick={handleCreateCategory}
-                  className="bg-contai-lightBlue text-white px-2 py-2 rounded flex-grow sm:w-auto"
+                  className="bg-contai-lightBlue text-white px-4 py-2 rounded flex-grow sm:w-auto"
                 >
                   Nova Categoria
                 </button>
@@ -176,27 +178,25 @@ export const ListCategories = () => {
           ) : (
             <DynamicTable
               columns={columns}
-              data={
-                data?.categories.map(category => ({
-                  ...category,
-                  actions: (
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleView(category.id)}
-                        className="text-blue-500 hover:underline"
-                      >
-                        <FaEye className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(category.id)}
-                        className="text-red-500 hover:underline"
-                      >
-                        <FaTrash className="w-5 h-5" />
-                      </button>
-                    </div>
-                  ),
-                })) || []
-              }
+              data={data?.categories?.map(category => ({
+                ...category,
+                actions: (
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleView(category.id)}
+                      className="text-blue-500 hover:underline"
+                    >
+                      <FaEye className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(category.id)}
+                      className="text-red-500 hover:underline"
+                    >
+                      <FaTrash className="w-5 h-5" />
+                    </button>
+                  </div>
+                ),
+              })) || []}
               page={page}
               itemsPerPage={itemsPerPage}
               totalItems={data?.total || 0}

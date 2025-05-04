@@ -10,6 +10,14 @@ interface PerformanceChartProps {
 }
 
 export const PerformanceChart = ({ data }: PerformanceChartProps) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[400px] text-gray-500 dark:text-gray-400">
+        Nenhum dado disponível para o período selecionado
+      </div>
+    );
+  }
+
   let category = [];
   let lineData = [];
   let barData = [];

@@ -68,7 +68,7 @@ export const Dashboard = () => {
       queryFn: () => fetchMonthlyTotalsByType(monthYear),
     });
 
-  const formattedData = data?.map(item => {
+  const formattedData = Array.isArray(data) ? data.map(item => {
     const monthDate = new Date(item.month + '-02');
     const monthName = monthDate
       .toLocaleDateString('pt-BR', { month: 'short' })
@@ -78,7 +78,7 @@ export const Dashboard = () => {
       income: item.income,
       expense: item.expense,
     };
-  });
+  }) : [];
 
   return (
     <div className="grid grid-cols-12 gap-4 md:gap-6">
@@ -95,16 +95,19 @@ export const Dashboard = () => {
       <div className="col-span-12 space-y-6 xl:col-span-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
           <CurrentBalances
-            month_balance={currentMonthBalance}
-            total_balance={totalBalance}
+            month_balance={currentMonthBalance || { currentMonthBalance: 0, previousMonthBalance: 0, percentageChange: 0 }}
+            total_balance={totalBalance || { totalBalance: 0 }}
           />
-          <CurrentMonthCategoryBalance data={categoryComparison} />
+          <CurrentMonthCategoryBalance data={categoryComparison || { 
+            highestIncome: { category: '', amount: 0, percentageChange: 0 },
+            highestExpense: { category: '', amount: 0, percentageChange: 0 }
+          }} />
         </div>
       </div>
       <div className="col-span-12 space-y-6 xl:col-span-6">
         <CurrentRatioAndSurvival
-          survivalTime={survivalTime}
-          incomeExpenseRatio={incomeExpenseRatio}
+          survivalTime={survivalTime || { survivalTime: 0 }}
+          incomeExpenseRatio={incomeExpenseRatio || { ratio: 0 }}
         />
       </div>
       <div className="col-span-12 space-y-6 xl:col-span-6">
@@ -127,7 +130,7 @@ export const Dashboard = () => {
                       highlightColor="#24303F"
                     />
                   ) : (
-                    <PerformanceChart data={formattedData} />
+                    <PerformanceChart data={formattedData || []} />
                   )}
                 </div>
               </div>
@@ -155,7 +158,7 @@ export const Dashboard = () => {
                       highlightColor="#24303F"
                     />
                   ) : (
-                    <MonthlyCategoryChart data={monthlyTotals?.totals} />
+                    <MonthlyCategoryChart data={monthlyTotals?.totals || []} />
                   )}
                 </div>
               </div>
@@ -164,11 +167,23 @@ export const Dashboard = () => {
         </div>
       </div>
       <div className="col-span-12 grid lg:grid-cols-4 gap-6">
-        {monthlyTotalsByType?.map((paymentType, key) => (
-          <div key={key}>
-            <PaymentTypeCart {...paymentType} />
+        {monthlyTotalsByTypeLoading ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <div key={index}>
+              <Skeleton height={200} baseColor="#333A48" highlightColor="#24303F" />
+            </div>
+          ))
+        ) : monthlyTotalsByType?.length === 0 ? (
+          <div className="col-span-4 text-center text-gray-500 dark:text-gray-400 py-8">
+            Nenhum dado disponível para o período selecionado
           </div>
-        ))}
+        ) : (
+          monthlyTotalsByType?.map((paymentType, key) => (
+            <div key={key}>
+              <PaymentTypeCart {...paymentType} />
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
