@@ -11,31 +11,56 @@ export const fetchRecurringEntries = async (params: {
   sort_by?: string[];
   sort_order?: Array<'asc' | 'desc'>;
 }): Promise<GetRecurringEntriesResponse> => {
-  const { data } = await api.get('/recurring_entry', { params });
-  return data;
+  try {
+    const { data } = await api.get('/recurring_entry', { params });
+    return data;
+  } catch (error) {
+    console.error('Error fetching recurring entries:', error);
+    throw error;
+  }
 };
 
 export const fetchRecurringEntry = async (
   id: string,
 ): Promise<RecurringEntry> => {
-  const { data } = await api.get(`/recurring_entry/${id}`);
-  return data;
+  try {
+    const { data } = await api.get(`/recurring_entry/${id}`);
+    return data;
+  } catch (error) {
+    console.error('Error fetching recurring entry:', error);
+    throw error;
+  }
 };
 
 export const createRecurringEntry = async (
   entry: Omit<RecurringEntry, 'id'>,
 ): Promise<RecurringEntry> => {
-  const { data } = await api.post('/recurring_entry', entry);
-  return data;
+  try {
+    const { data } = await api.post('/recurring_entry', entry);
+    return data;
+  } catch (error) {
+    console.error('Error creating recurring entry:', error);
+    throw error;
+  }
 };
 
 export const updateRecurringEntry = async (
   entry: RecurringEntry,
 ): Promise<RecurringEntry> => {
-  const { data } = await api.put(`/recurring_entry/${entry.id}`, entry);
-  return data;
+  try {
+    const { data } = await api.put(`/recurring_entry/${entry.id}`, entry);
+    return data;
+  } catch (error) {
+    console.error('Error updating recurring entry:', error);
+    throw error;
+  }
 };
 
 export const deleteRecurringEntry = async (id: string): Promise<void> => {
-  await api.delete(`/recurring_entry/${id}`);
+  try {
+    await api.delete(`/recurring_entry/${id}`);
+  } catch (error) {
+    console.error('Error deleting recurring entry:', error);
+    throw error;
+  }
 };
