@@ -120,7 +120,7 @@ export const CreateRecurringEntry = () => {
 
   useEffect(() => {
     if (paymentTypes) {
-      const paymentTypeOptions = paymentTypes.payment_types.map(paymentType => ({
+      const paymentTypeOptions = paymentTypes.map(paymentType => ({
         value: paymentType.id.toString(),
         label: paymentType.name,
       }));

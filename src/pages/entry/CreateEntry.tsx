@@ -123,13 +123,13 @@ export const CreateEntry = () => {
       }
     }
     if (paymentTypes) {
-      if (paymentTypes.payment_types.length === 0) {
+      if (paymentTypes.length === 0) {
         toast.warning('Você precisa cadastrar uma forma de pagamento primeiro');
         navigate('/paymentTypes');
         return;
       }
 
-      const paymentTypeOptions = paymentTypes.payment_types.map(paymentType => ({
+      const paymentTypeOptions = paymentTypes.map(paymentType => ({
         value: paymentType.id.toString(),
         label: paymentType.name,
       }));
