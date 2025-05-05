@@ -13,6 +13,8 @@ import { CreateRecurringEntry } from '@/pages/recurringEntry/CreateRecurringEntr
 import { ListRecurringEntries } from '@/pages/recurringEntry/ListRecurringEntries';
 import { ListPaymentTypes } from '@/pages/paymentType/ListPaymentTypes';
 import { CreatePaymentType } from '@/pages/paymentType/CreatePaymentType';
+import { ListCostCenters } from '@/pages/costCenter/ListCostCenters';
+import { CreateCostCenter } from '@/pages/costCenter/CreateCostCenter';
 
 export const AppRoutes = () => {
   const token = useAuthStore(state => state.token);
@@ -137,6 +139,30 @@ export const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <CreatePaymentType />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/costCenters"
+        element={
+          <ProtectedRoute>
+            <ListCostCenters />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/costCenters/edit/:id"
+        element={
+          <ProtectedRoute>
+            <CreateCostCenter />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/costCenters/create"
+        element={
+          <ProtectedRoute>
+            <CreateCostCenter />
           </ProtectedRoute>
         }
       />

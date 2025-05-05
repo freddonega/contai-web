@@ -6,6 +6,10 @@ export interface Entry {
     id: string;
     name: string;
     type: string;
+    cost_center?: {
+      id: string;
+      name: string;
+    };
   };
   payment_type?: {
     id: string;
@@ -43,10 +47,11 @@ export interface GetEntriesParams {
   page?: number;
   items_per_page?: number;
   sort_by?: string[];
-  sort_order?: Array<'asc' | 'desc'>;
+  sort_order?: ('asc' | 'desc')[];
   category_id?: string[] | null;
   category_type?: string[] | null;
   payment_type_id?: string[] | null;
+  cost_center_id?: string[] | null;
   from?: string;
   to?: string;
 }

@@ -7,22 +7,28 @@ import {
 } from "@/requests/categoryRequests";
 import { Input } from "@/components/Input";
 import { RadioGroup } from "@/components/RadioGroup";
+import { SelectSearch } from "@/components/SelectSearch";
 import { Category } from "@/types/category";
 import { toast } from "react-toastify";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { fetchCostCenters } from "@/requests/costCenterRequests";
 
 // Define the validation schema
 const schema = yup.object().shape({
   name: yup.string().required("O nome da categoria é obrigatório"),
   type: yup.string().required("O tipo da categoria é obrigatório"),
+  cost_center_id: yup.string().required("O centro de custo é obrigatório"),
 });
 
 export const CreateCategory = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [costCenterOptions, setCostCenterOptions] = useState([]);
+  const [search, setSearch] = useState("");
+  const [initialCostCenter, setInitialCostCenter] = useState<{ id: string; name: string } | null>(null);
 
   const {
     register,
@@ -42,12 +48,55 @@ export const CreateCategory = () => {
     enabled: !!id,
   });
 
+  const { data: costCenters } = useQuery({
+    queryKey: ["costCenters", { search }],
+    queryFn: () =>
+      fetchCostCenters({
+        page: 1,
+        search,
+        items_per_page: 1000,
+      }),
+  });
+
+  // Efeito para definir os valores iniciais do formulário
   useEffect(() => {
     if (category) {
       setValue("name", category.name);
       setValue("type", category.type);
+      if (category.cost_center) {
+        setInitialCostCenter(category.cost_center);
+        setValue("cost_center_id", category.cost_center.id);
+      }
     }
   }, [category, setValue]);
+
+  // Efeito para gerenciar as opções de centro de custo
+  useEffect(() => {
+    if (costCenters) {
+      let options = costCenters.cost_centers.map((costCenter) => ({
+        value: costCenter.id,
+        label: costCenter.name,
+      }));
+
+      // Se tiver um centro de custo inicial e ele não estiver nas opções, adiciona ele
+      if (initialCostCenter) {
+        const costCenterExists = options.some(
+          (option) => option.value === initialCostCenter.id
+        );
+        if (!costCenterExists) {
+          options = [
+            {
+              value: initialCostCenter.id,
+              label: initialCostCenter.name,
+            },
+            ...options,
+          ];
+        }
+      }
+
+      setCostCenterOptions(options);
+    }
+  }, [costCenters, initialCostCenter]);
 
   const createMutation = useMutation({
     mutationFn: createCategory,
@@ -79,7 +128,7 @@ export const CreateCategory = () => {
     },
   });
 
-  const onSubmit = (data: Omit<Category, "id">) => {
+  const onSubmit = (data: Omit<Category, "id" | "cost_center">) => {
     if (id) {
       updateMutation.mutate({ id, ...data });
     } else {
@@ -113,6 +162,17 @@ export const CreateCategory = () => {
               ]}
               value={type}
               error={errors.type?.message}
+            />
+
+            <SelectSearch
+              label="Centro de Custo"
+              options={costCenterOptions}
+              onSearchChange={(e) => setSearch(e.target.value)}
+              onChange={(value) => {
+                setValue("cost_center_id", value);
+              }}
+              value={watch("cost_center_id")?.toString()}
+              error={errors.cost_center_id?.message}
             />
 
             <button

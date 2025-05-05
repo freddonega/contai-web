@@ -3,10 +3,15 @@ export interface Category {
   name: string;
   type: string;
   active: boolean;
+  cost_center_id: string;
+  cost_center?: {
+    id: string;
+    name: string;
+  };
 }
 
-export type CreateCategoryData = Omit<Category, 'id'>;
-export type UpdateCategoryData = Category;
+export type CreateCategoryData = Omit<Category, 'id' | 'cost_center'>;
+export type UpdateCategoryData = Omit<Category, 'cost_center'>;
 
 export interface GetCategoriesParams {
   search?: string;
@@ -20,6 +25,11 @@ export interface CategoryResponse {
   id: string;
   name: string;
   type: string;
+  cost_center_id: string;
+  cost_center: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface GetCategoriesResponse {

@@ -122,6 +122,15 @@ export const ListCategories = () => {
         ),
     },
     {
+      header: 'Centro de Custo',
+      accessor: 'cost_center.name',
+      width: '200px',
+      sortable: true,
+      Cell: ({ row }: { row: CategoryResponse }) => (
+        <span>{row.cost_center?.name || '-'}</span>
+      ),
+    },
+    {
       header: 'Ações',
       accessor: 'actions',
       width: '100px',

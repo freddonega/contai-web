@@ -33,11 +33,15 @@
                       "income",
                       "expense"
                     ]
+                  },
+                  "cost_center_id": {
+                    "type": "string"
                   }
                 },
                 "required": [
                   "name",
-                  "type"
+                  "type",
+                  "cost_center_id"
                 ]
               }
             }
@@ -52,12 +56,15 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "name": {
                       "type": "string"
                     },
                     "type": {
+                      "type": "string"
+                    },
+                    "cost_center_id": {
                       "type": "string"
                     }
                   }
@@ -67,66 +74,37 @@
           },
           "400": {
             "description": "Erro de validação"
+          },
+          "500": {
+            "description": "Erro Interno do Servidor"
           }
         }
       },
       "get": {
-        "summary": "Lista categorias com busca, paginação e itens por página",
+        "summary": "Lista todas as categorias do usuário",
         "tags": [
           "Categories"
         ],
         "parameters": [
           {
             "in": "query",
-            "name": "search",
+            "name": "type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "income",
+                "expense"
+              ]
+            },
+            "description": "Filtrar por tipo de categoria"
+          },
+          {
+            "in": "query",
+            "name": "cost_center_id",
             "schema": {
               "type": "string"
             },
-            "description": "Termo de busca para o nome da categoria"
-          },
-          {
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer",
-              "default": 1
-            },
-            "description": "Número da página"
-          },
-          {
-            "in": "query",
-            "name": "itemsPerPage",
-            "schema": {
-              "type": "integer",
-              "default": 10
-            },
-            "description": "Número de itens por página"
-          },
-          {
-            "in": "query",
-            "name": "sortBy",
-            "schema": {
-              "type": [
-                "string",
-                "array"
-              ]
-            },
-            "description": "Campo de ordenação"
-          },
-          {
-            "in": "query",
-            "name": "sortOrder",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "asc",
-                  "desc"
-                ]
-              }
-            },
-            "description": "Ordem de ordenação (asc ou desc)"
+            "description": "Filtrar por centro de custo"
           }
         ],
         "responses": {
@@ -135,52 +113,27 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "categories": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "type": {
-                            "type": "string"
-                          }
-                        }
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "cost_center_id": {
+                        "type": "string"
                       }
-                    },
-                    "total": {
-                      "type": "integer"
-                    },
-                    "page": {
-                      "type": "integer"
-                    },
-                    "itemsPerPage": {
-                      "type": "integer"
-                    },
-                    "sortBy": {
-                      "type": [
-                        "string",
-                        "array"
-                      ],
-                      "description": "Campo de ordenação"
-                    },
-                    "sortOrder": {
-                      "type": "string",
-                      "description": "Ordem de ordenação (asc ou desc)"
                     }
                   }
                 }
               }
             }
-          },
-          "400": {
-            "description": "Erro de validação"
           },
           "500": {
             "description": "Erro Interno do Servidor"
@@ -199,7 +152,7 @@
             "in": "path",
             "name": "id",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true,
             "description": "ID da categoria"
@@ -214,7 +167,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "name": {
                       "type": "string"
@@ -245,7 +198,7 @@
             "in": "path",
             "name": "id",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true,
             "description": "ID da categoria"
@@ -267,11 +220,15 @@
                       "income",
                       "expense"
                     ]
+                  },
+                  "cost_center_id": {
+                    "type": "string"
                   }
                 },
                 "required": [
                   "name",
-                  "type"
+                  "type",
+                  "cost_center_id"
                 ]
               }
             }
@@ -286,21 +243,21 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "name": {
                       "type": "string"
                     },
                     "type": {
                       "type": "string"
+                    },
+                    "cost_center_id": {
+                      "type": "string"
                     }
                   }
                 }
               }
             }
-          },
-          "400": {
-            "description": "Erro de validação"
           },
           "404": {
             "description": "Categoria não encontrada"
@@ -320,7 +277,7 @@
             "in": "path",
             "name": "id",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true,
             "description": "ID da categoria"
@@ -332,6 +289,224 @@
           },
           "404": {
             "description": "Categoria não encontrada"
+          },
+          "500": {
+            "description": "Erro Interno do Servidor"
+          }
+        }
+      }
+    },
+    "/cost-center": {
+      "post": {
+        "summary": "Cria um novo centro de custo",
+        "tags": [
+          "Cost Centers"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Centro de custo criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro de validação"
+          },
+          "500": {
+            "description": "Erro Interno do Servidor"
+          }
+        }
+      },
+      "get": {
+        "summary": "Lista todos os centros de custo do usuário",
+        "tags": [
+          "Cost Centers"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de centros de custo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro Interno do Servidor"
+          }
+        }
+      }
+    },
+    "/cost-center/{id}": {
+      "get": {
+        "summary": "Obtém um centro de custo pelo ID",
+        "tags": [
+          "Cost Centers"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ID do centro de custo"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Centro de custo encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Centro de custo não encontrado"
+          },
+          "500": {
+            "description": "Erro Interno do Servidor"
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualiza um centro de custo pelo ID",
+        "tags": [
+          "Cost Centers"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ID do centro de custo"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Centro de custo atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Centro de custo não encontrado"
+          },
+          "500": {
+            "description": "Erro Interno do Servidor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Exclui um centro de custo pelo ID",
+        "tags": [
+          "Cost Centers"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ID do centro de custo"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Centro de custo excluído com sucesso"
+          },
+          "404": {
+            "description": "Centro de custo não encontrado"
           },
           "500": {
             "description": "Erro Interno do Servidor"
@@ -639,9 +814,66 @@
         }
       }
     },
+    "/dashboard/{year}/{month}/totals_by_type": {
+      "get": {
+        "summary": "Lista o somatório por mês das movimentações agrupadas por tipo de pagamento",
+        "tags": [
+          "Dashboard"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The year for which to retrieve the totals"
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The month for which to retrieve the totals"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Somatório por mês das movimentações agrupadas por tipo de pagamento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "payment_type_name": {
+                        "type": "string"
+                      },
+                      "total": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/entries": {
       "post": {
-        "summary": "Cria uma nova entrada.",
+        "summary": "Cria uma nova entrada",
         "tags": [
           "Entries"
         ],
@@ -659,13 +891,14 @@
                     "type": "string"
                   },
                   "category_id": {
-                    "type": "integer"
-                  },
-                  "period": {
                     "type": "string"
                   },
+                  "period": {
+                    "type": "string",
+                    "description": "Formato YYYY-MM"
+                  },
                   "payment_type_id": {
-                    "type": "integer"
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -679,14 +912,14 @@
         },
         "responses": {
           "200": {
-            "description": "Entrada criada com sucesso.",
+            "description": "Entrada criada com sucesso",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "amount": {
                       "type": "number"
@@ -694,15 +927,33 @@
                     "description": {
                       "type": "string"
                     },
-                    "category_id": {
-                      "type": "integer"
+                    "period": {
+                      "type": "string"
                     },
-                    "user_id": {
-                      "type": "integer"
+                    "category": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      }
                     },
-                    "period": null,
-                    "payment_type_id": {
-                      "type": "integer"
+                    "payment_type": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
                     }
                   }
                 }
@@ -710,13 +961,10 @@
             }
           },
           "400": {
-            "description": "Erro de validação."
-          },
-          "401": {
-            "description": "User ID not found in token."
+            "description": "Erro de validação"
           },
           "500": {
-            "description": "Erro Interno do Servidor."
+            "description": "Erro Interno do Servidor"
           }
         }
       },
@@ -777,6 +1025,55 @@
               }
             },
             "description": "Ordem de classificação das entradas"
+          },
+          {
+            "in": "query",
+            "name": "category_id",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "IDs das categorias para filtrar"
+          },
+          {
+            "in": "query",
+            "name": "category_type",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Tipos de categorias para filtrar"
+          },
+          {
+            "in": "query",
+            "name": "payment_type_id",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "IDs dos tipos de pagamento para filtrar"
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Data inicial para filtrar (formato YYYY-MM)"
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Data final para filtrar (formato YYYY-MM)"
           }
         ],
         "responses": {
@@ -793,7 +1090,7 @@
                         "type": "object",
                         "properties": {
                           "id": {
-                            "type": "integer"
+                            "type": "string"
                           },
                           "amount": {
                             "type": "number"
@@ -801,13 +1098,23 @@
                           "description": {
                             "type": "string"
                           },
-                          "category_id": {
-                            "type": "integer"
+                          "category": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            }
                           },
-                          "user_id": {
-                            "type": "integer"
-                          },
-                          "period": null
+                          "period": {
+                            "type": "string"
+                          }
                         }
                       }
                     },
@@ -835,6 +1142,9 @@
                           "desc"
                         ]
                       }
+                    },
+                    "total_amount": {
+                      "type": "number"
                     }
                   }
                 }
@@ -861,7 +1171,7 @@
             "in": "path",
             "name": "id",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true,
             "description": "ID da entrada"
@@ -876,7 +1186,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "amount": {
                       "type": "number"
@@ -884,13 +1194,34 @@
                     "description": {
                       "type": "string"
                     },
-                    "category_id": {
-                      "type": "integer"
+                    "period": {
+                      "type": "string"
                     },
-                    "user_id": {
-                      "type": "integer"
+                    "category": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      }
                     },
-                    "period": null
+                    "payment_type": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -914,7 +1245,7 @@
             "in": "path",
             "name": "id",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true,
             "description": "ID da entrada"
@@ -934,13 +1265,14 @@
                     "type": "string"
                   },
                   "category_id": {
-                    "type": "integer"
-                  },
-                  "period": {
                     "type": "string"
                   },
+                  "period": {
+                    "type": "string",
+                    "description": "Formato YYYY-MM"
+                  },
                   "payment_type_id": {
-                    "type": "integer"
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -961,7 +1293,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "amount": {
                       "type": "number"
@@ -969,23 +1301,38 @@
                     "description": {
                       "type": "string"
                     },
-                    "category_id": {
-                      "type": "integer"
+                    "period": {
+                      "type": "string"
                     },
-                    "user_id": {
-                      "type": "integer"
+                    "category": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      }
                     },
-                    "period": null,
-                    "payment_type_id": {
-                      "type": "integer"
+                    "payment_type": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
                     }
                   }
                 }
               }
             }
-          },
-          "400": {
-            "description": "Erro de validação"
           },
           "404": {
             "description": "Entrada não encontrada"
@@ -1005,7 +1352,7 @@
             "in": "path",
             "name": "id",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true,
             "description": "ID da entrada"
@@ -1073,7 +1420,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "name": {
                       "type": "string"
@@ -1085,11 +1432,14 @@
           },
           "400": {
             "description": "Erro de validação"
+          },
+          "500": {
+            "description": "Erro Interno do Servidor"
           }
         }
       },
       "get": {
-        "summary": "Lista tipos de pagamento",
+        "summary": "Lista todos os tipos de pagamento do usuário",
         "tags": [
           "PaymentTypes"
         ],
@@ -1104,7 +1454,7 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "integer"
+                        "type": "string"
                       },
                       "name": {
                         "type": "string"
@@ -1114,6 +1464,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Erro de validação"
           },
           "500": {
             "description": "Erro Interno do Servidor"
@@ -1132,7 +1485,7 @@
             "in": "path",
             "name": "id",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true,
             "description": "ID do tipo de pagamento"
@@ -1147,7 +1500,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "name": {
                       "type": "string"
@@ -1175,7 +1528,7 @@
             "in": "path",
             "name": "id",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true,
             "description": "ID do tipo de pagamento"
@@ -1208,7 +1561,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "name": {
                       "type": "string"
@@ -1217,9 +1570,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "Erro de validação"
           },
           "404": {
             "description": "Tipo de pagamento não encontrado"
@@ -1239,7 +1589,7 @@
             "in": "path",
             "name": "id",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true,
             "description": "ID do tipo de pagamento"
@@ -1287,10 +1637,14 @@
                     ]
                   },
                   "category_id": {
-                    "type": "integer"
+                    "type": "string"
+                  },
+                  "payment_type_id": {
+                    "type": "string"
                   },
                   "next_run": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "date-time"
                   }
                 },
                 "required": [
@@ -1313,7 +1667,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "user_id": {
                       "type": "integer"
@@ -1331,7 +1685,18 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "integer"
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "payment_type": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
                         },
                         "name": {
                           "type": "string"
@@ -1339,12 +1704,16 @@
                       }
                     },
                     "next_run": {
-                      "type": "string"
+                      "type": "string",
+                      "format": "date-time"
                     }
                   }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Erro de validação"
           },
           "500": {
             "description": "Erro ao criar lançamento recorrente"
@@ -1356,50 +1725,138 @@
         "tags": [
           "RecurringEntries"
         ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Número da página"
+          },
+          {
+            "in": "query",
+            "name": "items_per_page",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Número de itens por página"
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Campos para ordenar os lançamentos recorrentes"
+          },
+          {
+            "in": "query",
+            "name": "sort_order",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ]
+              }
+            },
+            "description": "Ordem de classificação dos lançamentos recorrentes"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Lista de lançamentos recorrentes",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer"
-                      },
-                      "user_id": {
-                        "type": "integer"
-                      },
-                      "amount": {
-                        "type": "number"
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "frequency": {
-                        "type": "string"
-                      },
-                      "category": {
+                  "type": "object",
+                  "properties": {
+                    "recurring_entries": {
+                      "type": "array",
+                      "items": {
                         "type": "object",
                         "properties": {
                           "id": {
-                            "type": "integer"
-                          },
-                          "name": {
                             "type": "string"
+                          },
+                          "amount": {
+                            "type": "number"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "frequency": {
+                            "type": "string"
+                          },
+                          "category": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "payment_type": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "next_run": {
+                            "type": "string",
+                            "format": "date-time"
                           }
                         }
-                      },
-                      "next_run": {
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "items_per_page": {
+                      "type": "integer"
+                    },
+                    "sort_by": {
+                      "type": "array",
+                      "items": {
                         "type": "string"
+                      }
+                    },
+                    "sort_order": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
                       }
                     }
                   }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Erro de validação"
           },
           "500": {
             "description": "Erro ao listar lançamentos recorrentes"
@@ -1418,7 +1875,7 @@
             "in": "path",
             "name": "id",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true,
             "description": "ID do lançamento recorrente"
@@ -1433,7 +1890,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "user_id": {
                       "type": "integer"
@@ -1451,7 +1908,18 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "integer"
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "payment_type": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
                         },
                         "name": {
                           "type": "string"
@@ -1459,12 +1927,16 @@
                       }
                     },
                     "next_run": {
-                      "type": "string"
+                      "type": "string",
+                      "format": "date-time"
                     }
                   }
                 }
               }
             }
+          },
+          "404": {
+            "description": "Lançamento recorrente não encontrado"
           },
           "500": {
             "description": "Erro ao buscar lançamento recorrente"
@@ -1481,7 +1953,7 @@
             "in": "path",
             "name": "id",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true,
             "description": "ID do lançamento recorrente"
@@ -1509,26 +1981,22 @@
                       "yearly"
                     ]
                   },
-                  "category": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer"
-                      },
-                      "name": {
-                        "type": "string"
-                      }
-                    }
+                  "category_id": {
+                    "type": "string"
+                  },
+                  "payment_type_id": {
+                    "type": "string"
                   },
                   "next_run": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "date-time"
                   }
                 },
                 "required": [
                   "amount",
                   "description",
                   "frequency",
-                  "category",
+                  "category_id",
                   "next_run"
                 ]
               }
@@ -1544,7 +2012,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "user_id": {
                       "type": "integer"
@@ -1562,7 +2030,18 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "integer"
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "payment_type": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
                         },
                         "name": {
                           "type": "string"
@@ -1570,12 +2049,16 @@
                       }
                     },
                     "next_run": {
-                      "type": "string"
+                      "type": "string",
+                      "format": "date-time"
                     }
                   }
                 }
               }
             }
+          },
+          "404": {
+            "description": "Lançamento recorrente não encontrado"
           },
           "500": {
             "description": "Erro ao atualizar lançamento recorrente"
@@ -1592,7 +2075,7 @@
             "in": "path",
             "name": "id",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true,
             "description": "ID do lançamento recorrente"
@@ -1601,6 +2084,9 @@
         "responses": {
           "204": {
             "description": "Lançamento recorrente excluído com sucesso"
+          },
+          "404": {
+            "description": "Lançamento recorrente não encontrado"
           },
           "500": {
             "description": "Erro ao excluir lançamento recorrente"
@@ -1628,13 +2114,13 @@
                     "type": "string"
                   },
                   "name": {
-                    "type": "string // New field"
+                    "type": "string"
                   }
                 },
                 "required": [
                   "email",
                   "password",
-                  "name // New field"
+                  "name"
                 ]
               }
             }
@@ -1649,13 +2135,13 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "email": {
                       "type": "string"
                     },
                     "name": {
-                      "type": "string // New field"
+                      "type": "string"
                     }
                   }
                 }
@@ -1670,7 +2156,7 @@
     },
     "/login": {
       "post": {
-        "summary": "Faz login de um usuário",
+        "summary": "Realiza login do usuário",
         "tags": [
           "Users"
         ],
@@ -1698,7 +2184,7 @@
         },
         "responses": {
           "200": {
-            "description": "Login bem-sucedido",
+            "description": "Login realizado com sucesso",
             "content": {
               "application/json": {
                 "schema": {
@@ -1711,12 +2197,12 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "integer"
-                        },
-                        "name": {
                           "type": "string"
                         },
                         "email": {
+                          "type": "string"
+                        },
+                        "name": {
                           "type": "string"
                         }
                       }
@@ -1725,9 +2211,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "Erro de validação"
           },
           "401": {
             "description": "Credenciais inválidas"
@@ -1741,6 +2224,10 @@
     {
       "name": "Categories",
       "description": "API para gerenciar categorias"
+    },
+    {
+      "name": "Cost Centers",
+      "description": "API para gerenciar centros de custo"
     },
     {
       "name": "Entries",

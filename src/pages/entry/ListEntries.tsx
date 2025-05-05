@@ -21,6 +21,7 @@ import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
 import { fetchCategories } from '@/requests/categoryRequests';
 import { fetchPaymentTypes } from '@/requests/paymentTypeRequests';
+import { fetchCostCenters } from '@/requests/costCenterRequests';
 import { Input } from '@/components/Input';
 import { SelectMultiple } from '@/components/SelectMultiple';
 
@@ -32,6 +33,7 @@ export const ListEntries = () => {
   const [categoryId, setCategoryId] = useState<string[]>([]);
   const [categoryType, setCategoryType] = useState<string[]>([]);
   const [paymentTypeId, setPaymentTypeId] = useState<string[]>([]);
+  const [costCenterId, setCostCenterId] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<{ from: string; to: string }>({
     from: '',
     to: '',
@@ -44,6 +46,7 @@ export const ListEntries = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
   const [paymentTypes, setPaymentTypes] = useState<{ value: string; label: string }[]>([]);
+  const [costCenters, setCostCenters] = useState<{ value: string; label: string }[]>([]);
 
   const { data: categoriesData } = useQuery({
     queryKey: ['categories', debouncedSearch],
@@ -59,6 +62,16 @@ export const ListEntries = () => {
     queryKey: ['paymentTypes', debouncedSearch],
     queryFn: () =>
       fetchPaymentTypes({
+        search: debouncedSearch,
+        page: 1,
+        items_per_page: 1000,
+      }),
+  });
+
+  const { data: costCentersData } = useQuery({
+    queryKey: ['costCenters', debouncedSearch],
+    queryFn: () =>
+      fetchCostCenters({
         search: debouncedSearch,
         page: 1,
         items_per_page: 1000,
@@ -85,6 +98,16 @@ export const ListEntries = () => {
     }
   }, [paymentTypesData]);
 
+  useEffect(() => {
+    if (costCentersData) {
+      const costCenterOptions = costCentersData.cost_centers.map(costCenter => ({
+        value: costCenter.id.toString(),
+        label: costCenter.name,
+      }));
+      setCostCenters(costCenterOptions);
+    }
+  }, [costCentersData]);
+
   const { data, isLoading } = useQuery<GetEntriesResponse>({
     queryKey: [
       'entries',
@@ -97,6 +120,7 @@ export const ListEntries = () => {
         categoryId,
         categoryType,
         paymentTypeId,
+        costCenterId,
         from: dateRange.from,
         to: dateRange.to,
       },
@@ -111,6 +135,7 @@ export const ListEntries = () => {
         category_id: categoryId.length > 0 ? categoryId : null,
         category_type: categoryType.length > 0 ? categoryType : null,
         payment_type_id: paymentTypeId.length > 0 ? paymentTypeId : null,
+        cost_center_id: costCenterId.length > 0 ? costCenterId : null,
         from: dateRange.from,
         to: dateRange.to,
       }),
@@ -210,6 +235,15 @@ export const ListEntries = () => {
       Cell: ({ row }: { row: Entry }) => <span>{row.category.name}</span>,
     },
     {
+      header: 'Centro de Custo',
+      accessor: 'category.cost_center.name',
+      width: '200px',
+      sortable: true,
+      Cell: ({ row }: { row: Entry }) => (
+        <span>{row.category.cost_center?.name || '-'}</span>
+      ),
+    },
+    {
       header: 'Tipo',
       accessor: 'category.type',
       width: '150px',
@@ -297,6 +331,15 @@ export const ListEntries = () => {
                 value={paymentTypeId}
                 onChange={value => {
                   setPaymentTypeId(value);
+                  setPage(1);
+                }}
+              />
+              <SelectMultiple
+                label="Centro de Custo"
+                options={costCenters}
+                value={costCenterId}
+                onChange={value => {
+                  setCostCenterId(value);
                   setPage(1);
                 }}
               />
