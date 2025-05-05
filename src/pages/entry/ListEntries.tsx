@@ -21,17 +21,17 @@ import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
 import { fetchCategories } from '@/requests/categoryRequests';
 import { fetchPaymentTypes } from '@/requests/paymentTypeRequests';
-import { Select } from '@/components/Select';
 import { Input } from '@/components/Input';
+import { SelectMultiple } from '@/components/SelectMultiple';
 
 export const ListEntries = () => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState<string[]>(['period', 'category.type']);
   const [sortDirection, setSortDirection] = useState<('asc' | 'desc')[]>(['desc', 'desc']);
-  const [categoryId, setCategoryId] = useState<string | null>(null);
-  const [categoryType, setCategoryType] = useState<string | null>(null);
-  const [paymentTypeId, setPaymentTypeId] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useState<string[]>([]);
+  const [categoryType, setCategoryType] = useState<string[]>([]);
+  const [paymentTypeId, setPaymentTypeId] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<{ from: string; to: string }>({
     from: '',
     to: '',
@@ -108,9 +108,9 @@ export const ListEntries = () => {
         items_per_page: itemsPerPage,
         sort_by: sortBy,
         sort_order: sortDirection,
-        category_id: categoryId,
-        category_type: categoryType,
-        payment_type_id: paymentTypeId,
+        category_id: categoryId.length > 0 ? categoryId : null,
+        category_type: categoryType.length > 0 ? categoryType : null,
+        payment_type_id: paymentTypeId.length > 0 ? paymentTypeId : null,
         from: dateRange.from,
         to: dateRange.to,
       }),
@@ -270,33 +270,33 @@ export const ListEntries = () => {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-              <Select
+              <SelectMultiple
                 label="Categoria"
                 options={categories}
                 value={categoryId}
-                onChange={e => {
-                  setCategoryId(e.target.value);
+                onChange={value => {
+                  setCategoryId(value);
                   setPage(1);
                 }}
               />
-              <Select
+              <SelectMultiple
                 label="Tipo"
                 options={[
                   { value: 'income', label: 'Receita' },
                   { value: 'expense', label: 'Despesa' },
                 ]}
                 value={categoryType}
-                onChange={e => {
-                  setCategoryType(e.target.value);
+                onChange={value => {
+                  setCategoryType(value);
                   setPage(1);
                 }}
               />
-              <Select
+              <SelectMultiple
                 label="Forma de Pagamento"
                 options={paymentTypes}
                 value={paymentTypeId}
-                onChange={e => {
-                  setPaymentTypeId(e.target.value);
+                onChange={value => {
+                  setPaymentTypeId(value);
                   setPage(1);
                 }}
               />

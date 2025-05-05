@@ -44,9 +44,9 @@ export interface GetEntriesParams {
   items_per_page?: number;
   sort_by?: string[];
   sort_order?: Array<'asc' | 'desc'>;
-  category_id?: string | null;
-  category_type?: string | null;
-  payment_type_id?: string | null;
+  category_id?: string[] | null;
+  category_type?: string[] | null;
+  payment_type_id?: string[] | null;
   from?: string;
   to?: string;
 }
