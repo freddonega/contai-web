@@ -3,7 +3,7 @@ export interface Category {
   name: string;
   type: string;
   active: boolean;
-  cost_center_id: string;
+  cost_center_id?: string;
   cost_center?: {
     id: string;
     name: string;
@@ -25,8 +25,8 @@ export interface CategoryResponse {
   id: string;
   name: string;
   type: string;
-  cost_center_id: string;
-  cost_center: {
+  cost_center_id?: string;
+  cost_center?: {
     id: string;
     name: string;
   };

@@ -20,7 +20,11 @@ import { fetchCostCenters } from "@/requests/costCenterRequests";
 const schema = yup.object().shape({
   name: yup.string().required("O nome da categoria é obrigatório"),
   type: yup.string().required("O tipo da categoria é obrigatório"),
-  cost_center_id: yup.string().required("O centro de custo é obrigatório"),
+  cost_center_id: yup.string().when('type', {
+    is: 'expense',
+    then: (schema) => schema.required("O centro de custo é obrigatório para despesas"),
+    otherwise: (schema) => schema.nullable(),
+  }),
 });
 
 export const CreateCategory = () => {
@@ -164,16 +168,18 @@ export const CreateCategory = () => {
               error={errors.type?.message}
             />
 
-            <SelectSearch
-              label="Centro de Custo"
-              options={costCenterOptions}
-              onSearchChange={(e) => setSearch(e.target.value)}
-              onChange={(value) => {
-                setValue("cost_center_id", value);
-              }}
-              value={watch("cost_center_id")?.toString()}
-              error={errors.cost_center_id?.message}
-            />
+            {type === 'expense' && (
+              <SelectSearch
+                label="Centro de Custo"
+                options={costCenterOptions}
+                onSearchChange={(e) => setSearch(e.target.value)}
+                onChange={(value) => {
+                  setValue("cost_center_id", value);
+                }}
+                value={watch("cost_center_id")?.toString()}
+                error={errors.cost_center_id?.message}
+              />
+            )}
 
             <button
               className="inline-flex items-center justify-center gap-2 rounded-lg transition w-full px-4 py-3 text-sm bg-contai-lightBlue text-white shadow-theme-xs hover: disabled:bg-gray-500/50 disabled:cursor-not-allowed"
