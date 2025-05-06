@@ -70,6 +70,7 @@ export const CreateEntry = () => {
       is: true,
       then: schema => schema.required('Frequência é obrigatória'),
     }),
+    last_run: yup.string().nullable(),
     payment_type_id: yup.string().when('category_id', {
       is: (categoryId: number) => {
         const category = context.categories?.find(
@@ -284,24 +285,33 @@ export const CreateEntry = () => {
               </label>
             </div>
             {recurring && (
-              <Controller
-                name="frequency"
-                control={control}
-                render={({ field }) => (
-                  <ButtonSelector
-                    label="Selecione a frequência"
-                    options={[
-                      { value: 'daily', label: 'Diária' },
-                      { value: 'weekly', label: 'Semanal' },
-                      { value: 'monthly', label: 'Mensal' },
-                      { value: 'yearly', label: 'Anual' },
-                    ]}
-                    value={field.value}
-                    onChange={field.onChange}
-                    error={errors.frequency?.message}
-                  />
-                )}
-              />
+              <>
+                <Controller
+                  name="frequency"
+                  control={control}
+                  render={({ field }) => (
+                    <ButtonSelector
+                      label="Selecione a frequência"
+                      options={[
+                        { value: 'daily', label: 'Diária' },
+                        { value: 'weekly', label: 'Semanal' },
+                        { value: 'monthly', label: 'Mensal' },
+                        { value: 'yearly', label: 'Anual' },
+                      ]}
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={errors.frequency?.message}
+                    />
+                  )}
+                />
+                <Input
+                  label="Última Execução"
+                  type="date"
+                  placeholder="ex: 2023-01-01"
+                  {...register('last_run')}
+                  error={errors.last_run?.message}
+                />
+              </>
             )}
             <div>
               <button

@@ -28,6 +28,7 @@ export interface CreateEntryData {
   recurring?: boolean;
   frequency?: string;
   next_run?: string;
+  last_run?: string;
 }
 
 export interface UpdateEntryData {
@@ -40,6 +41,7 @@ export interface UpdateEntryData {
   recurring?: boolean;
   frequency?: string;
   next_run?: string;
+  last_run?: string;
 }
 
 export interface GetEntriesParams {

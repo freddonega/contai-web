@@ -44,6 +44,7 @@ export const createEntry = async (
           payment_type_id: newEntry.payment_type_id,
           frequency: newEntry.frequency,
           next_run: newEntry.next_run,
+          last_run: newEntry.last_run,
         }),
       ]);
     } else {
@@ -72,6 +73,7 @@ export const updateEntry = async (
           payment_type_id: updatedEntry.payment_type_id,
           frequency: updatedEntry.frequency,
           next_run: updatedEntry.next_run,
+          last_run: updatedEntry.last_run,
         }),
       ]);
     } else {

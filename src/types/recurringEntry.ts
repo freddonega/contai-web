@@ -13,6 +13,7 @@ export interface RecurringEntry {
     name: string;
   };
   next_run: string;
+  last_run?: string;
 }
 
 export interface GetRecurringEntriesResponse {

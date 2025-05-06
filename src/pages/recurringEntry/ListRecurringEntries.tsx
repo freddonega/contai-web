@@ -161,7 +161,6 @@ export const ListRecurringEntries = () => {
           </span>
         ),
     },
-
     {
       header: 'Próxima Execução',
       accessor: 'next_run',
@@ -169,6 +168,18 @@ export const ListRecurringEntries = () => {
       sortable: true,
       Cell: ({ row }: { row: any }) => {
         const date = new Date(row.next_run);
+        date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+        return date.toLocaleDateString().toString();
+      },
+    },
+    {
+      header: 'Última Execução',
+      accessor: 'last_run',
+      width: '200px',
+      sortable: true,
+      Cell: ({ row }: { row: any }) => {
+        if (!row.last_run) return '-';
+        const date = new Date(row.last_run);
         date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
         return date.toLocaleDateString().toString();
       },

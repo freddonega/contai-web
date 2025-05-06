@@ -56,6 +56,7 @@ export const CreateRecurringEntry = () => {
     category_id: yup.string().required('Categoria é obrigatória'),
     frequency: yup.string().required('Frequência é obrigatória'),
     next_run: yup.string().required('Próxima execução é obrigatória'),
+    last_run: yup.string().nullable(),
     payment_type_id: yup.string().when('category_id', {
       is: (categoryId: number) => {
         const category = context.categories?.find(
@@ -136,6 +137,9 @@ export const CreateRecurringEntry = () => {
       setValue('payment_type_id', entry.payment_type?.id);
       setValue('frequency', entry.frequency);
       setValue('next_run', entry.next_run.split('T')[0]);
+      if (entry.last_run) {
+        setValue('last_run', entry.last_run.split('T')[0]);
+      }
     }
   }, [entry, setValue]);
 
@@ -170,10 +174,15 @@ export const CreateRecurringEntry = () => {
   });
 
   const onSubmit = (data: Omit<RecurringEntry, 'id'>) => {
+    const formData = {
+      ...data,
+      last_run: data.last_run || null
+    };
+
     if (id) {
-      updateMutation.mutate({ id, ...data });
+      updateMutation.mutate({ id, ...formData });
     } else {
-      createMutation.mutate(data);
+      createMutation.mutate(formData);
     }
   };
 
@@ -259,6 +268,13 @@ export const CreateRecurringEntry = () => {
               placeholder="ex: 2023-01-01"
               {...register('next_run')}
               error={errors.next_run?.message}
+            />
+            <Input
+              label="Última Execução"
+              type="date"
+              placeholder="ex: 2023-01-01"
+              {...register('last_run')}
+              error={errors.last_run?.message}
             />
             <div>
               <button
